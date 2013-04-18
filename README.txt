@@ -1,5 +1,7 @@
 Image Writer for Microsoft Windows
 Release 0.7 - Sourceforge Edition
+Extended by Bizplay.com
+
 ======
 About:
 ======
@@ -62,3 +64,4 @@ The license text is available in LGPL-2.1
 Original version developed by Justin Davis <tuxdavis@gmail.com>
 Maintained by the ImageWriter developers (https://launchpad.net/~image-writer-devs).
 
+Put on Github as open source code including extensions by Bizplay (info@bizplay.com)
