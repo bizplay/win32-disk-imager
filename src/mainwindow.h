@@ -52,10 +52,41 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void on_leFile_textChanged();
 		void on_leFile_editingFinished();
 		void on_md5CheckBox_stateChanged();
+		void on_cbWEP_stateChanged();
+		void on_cbHidden_stateChanged();
+		void on_leSSID_textChanged();
+		void on_lePassword_textChanged();
+		void on_leTarget_textChanged();
 	private:
 		// find attached devices
 		void getLogicalDrives();
 		void setReadWriteButtonState();
+
+		void disableWriteAndReadButtons();
+		void disableCancelButton();
+		void setStatusIdleAndDisableCancel();
+		void closeHandle(HANDLE handle);
+		void closeHandles(HANDLE handle1, HANDLE handle2);
+		void removeLockAndCloseHandle(HANDLE handle2);
+		void closeVolumeHandle();
+		void removeLockAndCloseVolumeHandle();
+		void idleStatusAndCloseVolumeHandle();
+		void idleStatusRemoveLockAndCloseVolumeHandle();
+		void closeFileHandle();
+		void closeRawDiskHandle();
+		void deleteData();
+		void deleteDataIdleStatusRemoveLockAndCloseVolumeHandles();
+		bool needsInsertion(QString leValue, QString &value);
+		bool needsURLInsertion(QString leValue, QString &value);
+		bool configurationShouldBeWritten();
+		bool writeOSConfiguration(char *ltr);
+		void setParameter(QStringList &parameters, QString key, QString value);
+		QStringList trimList(QStringList list);
+		void removeParameter(QStringList &parameters, QString keyAndValue);
+		QString setParameters(QString line, bool insertSSID, QString SSID, bool insertPassword, QString password, bool replaceURL, QString newURL);
+		void setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID);
+		void setPasswordParameter(QStringList &parameters, bool insertPassword, QString password);
+		void setURLParameter(QStringList &parameters, bool replaceURL, QString newURL);
 
 		HANDLE hVolume;
 		HANDLE hFile;

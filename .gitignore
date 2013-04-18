@@ -1,5 +1,4 @@
-test-mingw/
-test-qt/
+test*/
 Win32DiskManager-v0.7/
 src/release/
 src/debug/

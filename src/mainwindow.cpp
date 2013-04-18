@@ -34,6 +34,8 @@
 #include <winioctl.h>
 #include <dbt.h>
 #include <shlobj.h>
+#include <iostream>
+#include <fstream>
 
 #include "disk.h"
 #include "mainwindow.h"
@@ -107,11 +109,11 @@ void MainWindow::setReadWriteButtonState()
 {
     bool fileSelected = !(leFile->text().isEmpty());
     bool deviceSelected = (cboxDevice->count() > 0);
-
     // set read and write buttons according to status of file/device
-    //bRead->setEnabled(deviceSelected && fileSelected);
+    //bRead->setEnabled(deviceSelected && fileSelected); disable, we only want to write
     bRead->setEnabled(false);
-    bWrite->setEnabled(deviceSelected && fileSelected);
+    //bWrite->setEnabled(deviceSelected && fileSelected); enable if either a file is selected or configuration data is present
+    bWrite->setEnabled(deviceSelected && (fileSelected || configurationShouldBeWritten()));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -191,6 +193,21 @@ void MainWindow::on_leFile_textChanged()
     }
 }
 
+void MainWindow::on_leSSID_textChanged()
+{
+    setReadWriteButtonState();
+}
+
+void MainWindow::on_lePassword_textChanged()
+{
+    setReadWriteButtonState();
+}
+
+void MainWindow::on_leTarget_textChanged()
+{
+    setReadWriteButtonState();
+}
+
 // on an "editingFinished" signal (IE: return press), if the lineedit
 // contains a valid file, and generate the md5
 void MainWindow::on_leFile_editingFinished()
@@ -249,10 +266,94 @@ void MainWindow::on_md5CheckBox_stateChanged()
         md5label->clear();
     }
 }
-
+void MainWindow::on_cbWEP_stateChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::on_cbHidden_stateChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::disableCancelButton()
+{
+    bCancel->setEnabled(false);
+    setReadWriteButtonState();
+}
+void MainWindow::setStatusIdleAndDisableCancel()
+{
+    status = STATUS_IDLE;
+    disableCancelButton();
+}
+void MainWindow::closeHandle(HANDLE handle)
+{
+    if (handle != NULL)
+    {
+        CloseHandle(handle);
+        handle = INVALID_HANDLE_VALUE;
+    }
+}
+void MainWindow::closeHandles(HANDLE handle1, HANDLE handle2)
+{
+    closeHandle(handle1);
+    closeHandle(handle2);
+}
+void MainWindow::removeLockAndCloseHandle(HANDLE handle)
+{
+    removeLockOnVolume(handle);
+    closeHandle(handle);
+}
+void MainWindow::closeVolumeHandle()
+{
+    CloseHandle(hVolume);
+    hVolume = INVALID_HANDLE_VALUE;
+}
+void MainWindow::removeLockAndCloseVolumeHandle()
+{
+    removeLockOnVolume(hVolume);
+    closeVolumeHandle();
+}
+void MainWindow::idleStatusAndCloseVolumeHandle()
+{
+    closeVolumeHandle();
+    setStatusIdleAndDisableCancel();
+}
+void MainWindow::idleStatusRemoveLockAndCloseVolumeHandle()
+{
+    removeLockOnVolume(hVolume);
+    idleStatusAndCloseVolumeHandle();
+}
+void MainWindow::closeFileHandle()
+{
+    CloseHandle(hFile);
+    hFile = INVALID_HANDLE_VALUE;
+}
+void MainWindow::closeRawDiskHandle()
+{
+    CloseHandle(hRawDisk);
+    hRawDisk = INVALID_HANDLE_VALUE;
+}
+void MainWindow::deleteData()
+{
+    delete sectorData;
+    sectorData = NULL;
+}
+void MainWindow::deleteDataIdleStatusRemoveLockAndCloseVolumeHandles()
+{
+    deleteData();
+    idleStatusRemoveLockAndCloseVolumeHandle();
+    closeRawDiskHandle();
+    closeFileHandle();
+}
 void MainWindow::on_bWrite_clicked()
 {
     bool passfail = true;
+    // build the drive letter as a const char *
+    //   (without the surrounding brackets)
+    QString qs = cboxDevice->currentText();
+    qs.replace(QRegExp("[\\[\\]]"), "");
+    QByteArray qba = qs.toLocal8Bit();
+    char *ltr = qba.data();
+
     if (!leFile->text().isEmpty())
     {
         QFileInfo fileinfo(leFile->text());
@@ -265,12 +366,6 @@ void MainWindow::on_bWrite_clicked()
                 return;
             }
 
-            // build the drive letter as a const char *
-            //   (without the surrounding brackets)
-            QString qs = cboxDevice->currentText();
-            qs.replace(QRegExp("[\\[\\]]"), "");
-            QByteArray qba = qs.toLocal8Bit();
-            const char *ltr = qba.data();
             if (QMessageBox::warning(NULL, tr("Confirm overwrite"), tr("Writing to a physical device can corrupt the device.\n"
                                                                        "(Target Device: %1 \"%2\")\n"
                                                                        "Are you sure you want to continue?").arg(cboxDevice->currentText()).arg(getDriveLabel(ltr)),
@@ -289,52 +384,34 @@ void MainWindow::on_bWrite_clicked()
             hVolume = getHandleOnVolume(volumeID, GENERIC_WRITE);
             if (hVolume == INVALID_HANDLE_VALUE)
             {
-                status = STATUS_IDLE;
-                bCancel->setEnabled(false);
-                setReadWriteButtonState();
+                setStatusIdleAndDisableCancel();
                 return;
             }
             if (!getLockOnVolume(hVolume))
             {
-                CloseHandle(hVolume);
-                status = STATUS_IDLE;
-                hVolume = INVALID_HANDLE_VALUE;
-                bCancel->setEnabled(false);
-                setReadWriteButtonState();
+                closeHandle(hVolume);
+                setStatusIdleAndDisableCancel();
                 return;
             }
             if (!unmountVolume(hVolume))
             {
-                removeLockOnVolume(hVolume);
-                CloseHandle(hVolume);
-                status = STATUS_IDLE;
-                hVolume = INVALID_HANDLE_VALUE;
-                bCancel->setEnabled(false);
-                setReadWriteButtonState();
+                removeLockAndCloseHandle(hVolume);
+                setStatusIdleAndDisableCancel();
                 return;
             }
             hFile = getHandleOnFile(leFile->text().toAscii().data(), GENERIC_READ);
             if (hFile == INVALID_HANDLE_VALUE)
             {
-                removeLockOnVolume(hVolume);
-                CloseHandle(hVolume);
-                status = STATUS_IDLE;
-                hVolume = INVALID_HANDLE_VALUE;
-                bCancel->setEnabled(false);
-                setReadWriteButtonState();
+                removeLockAndCloseHandle(hVolume);
+                setStatusIdleAndDisableCancel();
                 return;
             }
             hRawDisk = getHandleOnDevice(deviceID, GENERIC_WRITE);
             if (hRawDisk == INVALID_HANDLE_VALUE)
             {
-                removeLockOnVolume(hVolume);
-                CloseHandle(hFile);
-                CloseHandle(hVolume);
-                status = STATUS_IDLE;
-                hVolume = INVALID_HANDLE_VALUE;
-                hFile = INVALID_HANDLE_VALUE;
-                bCancel->setEnabled(false);
-                setReadWriteButtonState();
+                removeLockAndCloseHandle(hVolume);
+                closeHandle(hFile);
+                setStatusIdleAndDisableCancel();
                 return;
             }
             availablesectors = getNumberOfSectors(hRawDisk, &sectorsize);
@@ -343,16 +420,9 @@ void MainWindow::on_bWrite_clicked()
             {
                 QMessageBox::critical(NULL, tr("Write Error"),
                                       tr("Not enough space on disk: Size: %1 sectors  Available: %2 sectors  Sector size: %3").arg(numsectors).arg(availablesectors).arg(sectorsize));
-                removeLockOnVolume(hVolume);
-                CloseHandle(hRawDisk);
-                CloseHandle(hFile);
-                CloseHandle(hVolume);
-                status = STATUS_IDLE;
-                hVolume = INVALID_HANDLE_VALUE;
-                hFile = INVALID_HANDLE_VALUE;
-                hRawDisk = INVALID_HANDLE_VALUE;
-                bCancel->setEnabled(false);
-                setReadWriteButtonState();
+                removeLockAndCloseHandle(hVolume);
+                closeHandles(hFile, hRawDisk);
+                setStatusIdleAndDisableCancel();
                 return;
             }
 
@@ -364,38 +434,21 @@ void MainWindow::on_bWrite_clicked()
                 sectorData = readSectorDataFromHandle(hFile, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
                 if (sectorData == NULL)
                 {
-                    delete sectorData;
-                    removeLockOnVolume(hVolume);
-                    CloseHandle(hRawDisk);
-                    CloseHandle(hFile);
-                    CloseHandle(hVolume);
-                    status = STATUS_IDLE;
-                    sectorData = NULL;
-                    hRawDisk = INVALID_HANDLE_VALUE;
-                    hFile = INVALID_HANDLE_VALUE;
-                    hVolume = INVALID_HANDLE_VALUE;
-                    bCancel->setEnabled(false);
-                    setReadWriteButtonState();
+                    deleteData();
+                    removeLockAndCloseHandle(hVolume);
+                    closeHandles(hFile, hRawDisk);
+                    setStatusIdleAndDisableCancel();
                     return;
                 }
                 if (!writeSectorDataToHandle(hRawDisk, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
                 {
-                    delete sectorData;
-                    removeLockOnVolume(hVolume);
-                    CloseHandle(hRawDisk);
-                    CloseHandle(hFile);
-                    CloseHandle(hVolume);
-                    status = STATUS_IDLE;
-                    sectorData = NULL;
-                    hRawDisk = INVALID_HANDLE_VALUE;
-                    hFile = INVALID_HANDLE_VALUE;
-                    hVolume = INVALID_HANDLE_VALUE;
-                    bCancel->setEnabled(false);
-                    setReadWriteButtonState();
+                    deleteData();
+                    removeLockAndCloseHandle(hVolume);
+                    closeHandles(hFile, hRawDisk);
+                    setStatusIdleAndDisableCancel();
                     return;
                 }
-                delete sectorData;
-                sectorData = NULL;
+                deleteData();
                 QCoreApplication::processEvents();
                 if (timer.elapsed() >= 1000)
                 {
@@ -407,15 +460,11 @@ void MainWindow::on_bWrite_clicked()
                 progressbar->setValue(i);
                 QCoreApplication::processEvents();
             }
-            removeLockOnVolume(hVolume);
-            CloseHandle(hRawDisk);
-            CloseHandle(hFile);
-            CloseHandle(hVolume);
+            removeLockAndCloseVolumeHandle();
+            closeHandles(hFile, hRawDisk);
             sectorData = NULL;
-            hRawDisk = INVALID_HANDLE_VALUE;
-            hFile = INVALID_HANDLE_VALUE;
-            hVolume = INVALID_HANDLE_VALUE;
-            if (status == STATUS_CANCELED){
+            if (status == STATUS_CANCELED)
+            {
                 passfail = false;
             }
         }
@@ -438,14 +487,20 @@ void MainWindow::on_bWrite_clicked()
         statusbar->showMessage(tr("Done."));
         bCancel->setEnabled(false);
         setReadWriteButtonState();
-        if (passfail){
-            QMessageBox::information(NULL, tr("Complete"), tr("Write Successful."));
+        if (passfail)
+        {
+            QMessageBox::information(NULL, tr("Complete"), tr("Writing of image successful."));
         }
 
     }
-    else
+    /*
+     * Configuration of OS-startup by editing files written on USB device
+     *
+     */
+    if (configurationShouldBeWritten())
     {
-        QMessageBox::critical(NULL, tr("File Error"), tr("Please specify an image file to use."));
+        passfail = writeOSConfiguration(ltr);
+        QMessageBox::information(NULL, tr("Complete"), tr("Writing configuration data successful."));
     }
     if (status == STATUS_EXIT)
     {
@@ -454,6 +509,218 @@ void MainWindow::on_bWrite_clicked()
     status = STATUS_IDLE;
 }
 
+void MainWindow::disableWriteAndReadButtons()
+{
+    bCancel->setEnabled(true);
+    bWrite->setEnabled(false);
+    bRead->setEnabled(false);
+}
+bool MainWindow::needsInsertion(QString leValue, QString &value)
+{
+    bool result = false;
+    if (!leValue.isEmpty())
+    {
+        value = QString(leValue);
+        value.replace(QString(" "), QString("%20"));
+        result = true;
+    }
+    return result;
+}
+bool MainWindow::needsURLInsertion(QString leValue, QString &value)
+{
+    bool result = false;
+    if (!leValue.isEmpty())
+    {
+        QString tmp = QString(leValue);
+        // regaxp for urls: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/ 
+        // see: http://net.tutsplus.com/tutorials/other/8-regular-expressions-you-should-know/
+        if (tmp.indexOf(QRegExp("^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$")) > -1)
+        {
+            value = QString(leValue);
+            result = true;
+        }
+    }
+    return result;
+}
+bool MainWindow::configurationShouldBeWritten()
+{
+    bool result = false;
+    result = ( !leSSID->text().isEmpty() 
+               || !leTarget->text().isEmpty() 
+               || !lePassword->text().isEmpty() 
+               || cbWEP->checkState() != Qt::Unchecked 
+               || cbHidden->checkState() != Qt::Unchecked
+             );
+    return result;
+}
+bool MainWindow::writeOSConfiguration(char * ltr)
+{
+    bool result = true;
+    QString configLineToEditIndicator = QString("append");
+    
+    if (configurationShouldBeWritten())
+    {
+        QString configFileName = QString(ltr + QString("boot\\live.cfg"));
+        QFileInfo configfileinfo(configFileName);
+        if (configfileinfo.exists() && configfileinfo.isFile() &&
+                configfileinfo.isReadable() && (configfileinfo.size() > 0) )
+        {
+            status = STATUS_WRITING;
+            disableWriteAndReadButtons();
+
+            // construct parameter strings to find and replace
+            QString SSID;
+            bool insertSSID = needsInsertion(leSSID->text(), SSID);
+
+            QString password;
+            bool insertPassword = needsInsertion(lePassword->text(), password);
+            if (!insertPassword && (cbWEP->checkState() != Qt::Unchecked || cbHidden->checkState() != Qt::Unchecked))
+            {
+                insertPassword = true;
+            }
+            QString newURL = QString("http://www.bizplay.com/2400/74");
+
+            bool replaceURL = needsURLInsertion(leTarget->text(), newURL);
+
+            QString tmpConfigFileName = configFileName + QString(".tmp");
+            QFile inFile(configFileName);
+            if (!inFile.open(QIODevice::ReadOnly | QIODevice::Text))
+                return result;
+            QTextStream inStream(&inFile);
+            QFile outFile(tmpConfigFileName);
+            if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text))
+                return result;
+            QTextStream outStream(&outFile);
+
+            // do the replacing of parameters
+            while (!inStream.atEnd()) 
+            {
+                QString line = inStream.readLine();
+                if (line.indexOf(configLineToEditIndicator) > -1)
+                {
+                    // save indentation sincesetParameters returns the bare combined parameter string
+                    QString indentation = line.left(line.indexOf(configLineToEditIndicator));
+                    line = indentation + setParameters(line, insertSSID, SSID, insertPassword, password, replaceURL, newURL);
+                }
+                outStream << line << endl;
+            }
+            // replace the config file with the new file
+            inFile.close();
+            inFile.remove();
+            outFile.close();
+            outFile.rename(configFileName);
+        }
+        else if (!configfileinfo.exists() || !configfileinfo.isFile())
+        {
+            QMessageBox::critical(NULL, tr("File Error"), tr("The expected config file (/boot/live.cfg) does not exist."));
+            result = false;
+        }
+        else
+        {
+          // do nothing  
+        }
+    }
+    else
+    {
+        QMessageBox::critical(NULL, tr("information"), tr("No wireless network settings were configured."));
+    }
+    return result;
+}
+
+void MainWindow::setParameter(QStringList &parameters, QString key, QString value)
+{
+    if (parameters.indexOf(QRegExp(key + QString("=\\S*"))) > -1)
+    {
+        parameters.replaceInStrings(QRegExp(key + QString("=\\S*")), QString(key + QString("=") + value));
+    }
+    else
+    {
+        parameters << QString(key + QString("=") + value);
+    }
+}
+void MainWindow::removeParameter(QStringList &parameters, QString keyAndValue)
+{
+    if (parameters.indexOf(QRegExp(keyAndValue)) > -1)
+    {
+        parameters.replaceInStrings(QRegExp(keyAndValue), QString(""));
+    }
+}
+QString MainWindow::setParameters(QString line, bool insertSSID, QString SSID, bool insertPassword, QString password, bool replaceURL, QString newURL)
+{
+    QStringList items = trimList(line.split(" "));
+    QStringList parameters = items.filter(QRegExp("\\S+"));
+    setSSIDParameter(parameters, insertSSID, SSID);
+    setPasswordParameter(parameters, insertPassword, password);
+    setURLParameter(parameters, replaceURL, newURL);
+    QStringList nonEmptyParameters = parameters.filter(QRegExp("\\S+"));
+    return nonEmptyParameters.join(QString(" "));
+}
+QStringList MainWindow::trimList(QStringList list)
+{
+    QStringList result;
+    foreach (const QString &str, list) {
+        result += str.trimmed();
+    }
+    return result;
+}
+void MainWindow::setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID)
+{
+    if (insertSSID)
+    {
+        setParameter(parameters, QString("wpa-ssid"), SSID);
+    }
+    else 
+    {
+        removeParameter(parameters, QString("wpa-ssid=\\S*"));
+    }
+}
+void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPassword, QString password)
+{
+    if (insertPassword)
+    {
+        if (cbHidden->checkState() == Qt::Unchecked) 
+        {
+            // if present remove hidden settings
+            removeParameter(parameters, QString("wpa-ap-scan=1"));
+            removeParameter(parameters, QString("wpa-scan-ssid=1"));
+        }
+        else
+        {
+            // replace with correct setting
+            setParameter(parameters, QString("wpa-ap-scan"), QString("1"));
+            setParameter(parameters, QString("wpa-scan-ssid"), QString("1"));
+        }
+            if (cbWEP->checkState() == Qt::Unchecked) 
+        {
+            // remove WEP key
+            removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
+            removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
+            // add WPA key
+            setParameter(parameters, QString("wpa-psk"), password);
+        }
+        else
+        {
+            // remove WPA key
+            removeParameter(parameters, QString("wpa-psk=\\S*"));
+            // add WPA key
+            setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"));
+            setParameter(parameters, QString("wpa-wep-key0"), password);
+        }
+    }
+}
+void MainWindow::setURLParameter(QStringList &parameters, bool replaceURL, QString newURL)
+{
+    QString currentURL = QString("http://www.bizplay.com/2400/74");
+
+    if (replaceURL)
+    {
+        setParameter(parameters, QString("homepage"), newURL);
+    }
+    else
+    {
+        setParameter(parameters, QString("homepage"), currentURL);
+    }
+}
 void MainWindow::on_bRead_clicked()
 {
     if (!leFile->text().isEmpty())
@@ -488,52 +755,34 @@ void MainWindow::on_bRead_clicked()
         hVolume = getHandleOnVolume(volumeID, GENERIC_READ);
         if (hVolume == INVALID_HANDLE_VALUE)
         {
-            status = STATUS_IDLE;
-            bCancel->setEnabled(false);
-            setReadWriteButtonState();
+            setStatusIdleAndDisableCancel();
             return;
         }
         if (!getLockOnVolume(hVolume))
         {
-            CloseHandle(hVolume);
-            status = STATUS_IDLE;
-            hVolume = INVALID_HANDLE_VALUE;
-            bCancel->setEnabled(false);
-            setReadWriteButtonState();
+            closeHandle(hVolume);
+            setStatusIdleAndDisableCancel();
             return;
         }
         if (!unmountVolume(hVolume))
         {
-            removeLockOnVolume(hVolume);
-            CloseHandle(hVolume);
-            status = STATUS_IDLE;
-            hVolume = INVALID_HANDLE_VALUE;
-            bCancel->setEnabled(false);
-            setReadWriteButtonState();
+            removeLockAndCloseHandle(hVolume);
+            setStatusIdleAndDisableCancel();
             return;
         }
         hFile = getHandleOnFile(myFile.toAscii().data(), GENERIC_WRITE);
         if (hFile == INVALID_HANDLE_VALUE)
         {
-            removeLockOnVolume(hVolume);
-            CloseHandle(hVolume);
-            status = STATUS_IDLE;
-            hVolume = INVALID_HANDLE_VALUE;
-            bCancel->setEnabled(false);
-            setReadWriteButtonState();
+            removeLockAndCloseHandle(hVolume);
+            setStatusIdleAndDisableCancel();
             return;
         }
         hRawDisk = getHandleOnDevice(deviceID, GENERIC_READ);
         if (hRawDisk == INVALID_HANDLE_VALUE)
         {
-            removeLockOnVolume(hVolume);
-            CloseHandle(hFile);
-            CloseHandle(hVolume);
-            status = STATUS_IDLE;
-            hVolume = INVALID_HANDLE_VALUE;
-            hFile = INVALID_HANDLE_VALUE;
-            bCancel->setEnabled(false);
-            setReadWriteButtonState();
+            removeLockAndCloseHandle(hVolume);
+            closeHandle(hFile);
+            setStatusIdleAndDisableCancel();
             return;
         }
         numsectors = getNumberOfSectors(hRawDisk, &sectorsize);
@@ -549,17 +798,10 @@ void MainWindow::on_bRead_clicked()
         if (!spaceAvailable(myFile.left(3).replace(QChar('/'), QChar('\\')).toAscii().data(), spaceneeded))
         {
             QMessageBox::critical(NULL, tr("Write Error"), tr("Disk is not large enough for the specified image."));
-            removeLockOnVolume(hVolume);
-            CloseHandle(hRawDisk);
-            CloseHandle(hFile);
-            CloseHandle(hVolume);
-            status = STATUS_IDLE;
+            removeLockAndCloseHandle(hVolume);
+            closeHandles(hFile, hRawDisk);
+            setStatusIdleAndDisableCancel();
             sectorData = NULL;
-            hRawDisk = INVALID_HANDLE_VALUE;
-            hFile = INVALID_HANDLE_VALUE;
-            hVolume = INVALID_HANDLE_VALUE;
-            bCancel->setEnabled(false);
-            setReadWriteButtonState();
             return;
         }
         if (numsectors == 0ul)
@@ -577,34 +819,18 @@ void MainWindow::on_bRead_clicked()
             sectorData = readSectorDataFromHandle(hRawDisk, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize);
             if (sectorData == NULL)
             {
-                delete sectorData;
-                removeLockOnVolume(hVolume);
-                CloseHandle(hRawDisk);
-                CloseHandle(hFile);
-                CloseHandle(hVolume);
-                status = STATUS_IDLE;
-                sectorData = NULL;
-                hRawDisk = INVALID_HANDLE_VALUE;
-                hFile = INVALID_HANDLE_VALUE;
-                hVolume = INVALID_HANDLE_VALUE;
-                bCancel->setEnabled(false);
-                setReadWriteButtonState();
+                deleteData();
+                removeLockAndCloseHandle(hVolume);
+                closeHandles(hFile, hRawDisk);
+                setStatusIdleAndDisableCancel();
                 return;
             }
             if (!writeSectorDataToHandle(hFile, sectorData, i, (numsectors - i >= 1024ul) ? 1024ul:(numsectors - i), sectorsize))
             {
-                delete sectorData;
-                removeLockOnVolume(hVolume);
-                CloseHandle(hRawDisk);
-                CloseHandle(hFile);
-                CloseHandle(hVolume);
-                status = STATUS_IDLE;
-                sectorData = NULL;
-                hRawDisk = INVALID_HANDLE_VALUE;
-                hFile = INVALID_HANDLE_VALUE;
-                hVolume = INVALID_HANDLE_VALUE;
-                bCancel->setEnabled(false);
-                setReadWriteButtonState();
+                deleteData();
+                removeLockAndCloseHandle(hVolume);
+                closeHandles(hFile, hRawDisk);
+                setStatusIdleAndDisableCancel();
                 return;
             }
             delete sectorData;
@@ -619,14 +845,9 @@ void MainWindow::on_bRead_clicked()
             progressbar->setValue(i);
             QCoreApplication::processEvents();
         }
-        removeLockOnVolume(hVolume);
-        CloseHandle(hRawDisk);
-        CloseHandle(hFile);
-        CloseHandle(hVolume);
+        removeLockAndCloseVolumeHandle();
+        closeHandles(hFile, hRawDisk);
         sectorData = NULL;
-        hRawDisk = INVALID_HANDLE_VALUE;
-        hFile = INVALID_HANDLE_VALUE;
-        hVolume = INVALID_HANDLE_VALUE;
         progressbar->reset();
         statusbar->showMessage(tr("Done."));
         bCancel->setEnabled(false);
