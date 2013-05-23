@@ -500,7 +500,10 @@ void MainWindow::on_bWrite_clicked()
     if (configurationShouldBeWritten())
     {
         passfail = writeOSConfiguration(ltr);
-        QMessageBox::information(NULL, tr("Complete"), tr("Writing configuration data successful."));
+        if (passfail) 
+        {
+            QMessageBox::information(NULL, tr("Complete"), tr("Writing configuration data successful."));
+        }
     }
     if (status == STATUS_EXIT)
     {
@@ -556,7 +559,6 @@ bool MainWindow::configurationShouldBeWritten()
 bool MainWindow::writeOSConfiguration(char * ltr)
 {
     bool result = true;
-    QString configLineToEditIndicator = QString("append");
     
     if (configurationShouldBeWritten())
     {
@@ -565,68 +567,99 @@ bool MainWindow::writeOSConfiguration(char * ltr)
         if (configfileinfo.exists() && configfileinfo.isFile() &&
                 configfileinfo.isReadable() && (configfileinfo.size() > 0) )
         {
-            status = STATUS_WRITING;
-            disableWriteAndReadButtons();
-
-            // construct parameter strings to find and replace
-            QString SSID;
-            bool insertSSID = needsInsertion(leSSID->text(), SSID);
-
-            QString password;
-            bool insertPassword = needsInsertion(lePassword->text(), password);
-            if (!insertPassword && (cbWEP->checkState() != Qt::Unchecked || cbHidden->checkState() != Qt::Unchecked))
-            {
-                insertPassword = true;
-            }
-            QString newURL = QString("http://www.bizplay.com/2400/74");
-
-            bool replaceURL = needsURLInsertion(leTarget->text(), newURL);
-
-            QString tmpConfigFileName = configFileName + QString(".tmp");
-            QFile inFile(configFileName);
-            if (!inFile.open(QIODevice::ReadOnly | QIODevice::Text))
-                return result;
-            QTextStream inStream(&inFile);
-            QFile outFile(tmpConfigFileName);
-            if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text))
-                return result;
-            QTextStream outStream(&outFile);
-
-            // do the replacing of parameters
-            while (!inStream.atEnd()) 
-            {
-                QString line = inStream.readLine();
-                if (line.indexOf(configLineToEditIndicator) > -1)
-                {
-                    // save indentation sincesetParameters returns the bare combined parameter string
-                    QString indentation = line.left(line.indexOf(configLineToEditIndicator));
-                    line = indentation + setParameters(line, insertSSID, SSID, insertPassword, password, replaceURL, newURL);
-                }
-                outStream << line << endl;
-            }
-            // replace the config file with the new file
-            inFile.close();
-            inFile.remove();
-            outFile.close();
-            outFile.rename(configFileName);
+            result = updateConfigurationFile(configFileName);
         }
         else if (!configfileinfo.exists() || !configfileinfo.isFile())
         {
-            QMessageBox::critical(NULL, tr("File Error"), tr("The expected config file (/boot/live.cfg) does not exist."));
+            configFileName = QString(ltr + QString("isolinux\\live.cfg"));
+            QFileInfo secondConfigfileinfo(configFileName);
+            if (secondConfigfileinfo.exists() && secondConfigfileinfo.isFile() &&
+                    secondConfigfileinfo.isReadable() && (secondConfigfileinfo.size() > 0) )
+            {
+                result = updateConfigurationFile(configFileName);
+            }
+            else if (!secondConfigfileinfo.exists() || !secondConfigfileinfo.isFile())
+            {
+                QMessageBox::critical(NULL, tr("File Error"), tr("The expected config file (/boot/live.cfg or /isolinux/live.cfg) does not exist."));
+                result = false;
+            }
+            else if (!secondConfigfileinfo.isReadable())
+            {
+                QMessageBox::critical(NULL, tr("File Error"), tr("You do not have permision to read the config file."));
+                result = false;
+            }
+            else if (secondConfigfileinfo.size() == 0)
+            {
+                QMessageBox::critical(NULL, tr("File Error"), tr("The config file contains no data."));
+                result = false;
+            }
+        } 
+        else if (!configfileinfo.isReadable())
+        {
+            QMessageBox::critical(NULL, tr("File Error"), tr("You do not have permision to read the config file."));
             result = false;
         }
-        else
+        else if (configfileinfo.size() == 0)
         {
-          // do nothing  
+            QMessageBox::critical(NULL, tr("File Error"), tr("The config file contains no data."));
+            result = false;
         }
     }
     else
     {
-        QMessageBox::critical(NULL, tr("information"), tr("No wireless network settings were configured."));
+        QMessageBox::critical(NULL, tr("Information"), tr("Default settings were configured."));
     }
     return result;
 }
+bool MainWindow::updateConfigurationFile(QString configFileName)
+{
+    bool result = true;
+    QString configLineToEditIndicator = QString("append");
+    status = STATUS_WRITING;
+    disableWriteAndReadButtons();
 
+    // construct parameter strings to find and replace
+    QString SSID;
+    bool insertSSID = needsInsertion(leSSID->text(), SSID);
+    QString password;
+    bool insertPassword = needsInsertion(lePassword->text(), password);
+    if (!insertPassword && (cbWEP->checkState() != Qt::Unchecked || cbHidden->checkState() != Qt::Unchecked))
+    {
+        insertPassword = true;
+    }
+    QString newURL = QString("http://www.bizplay.com/2400/74");
+    bool replaceURL = needsURLInsertion(leTarget->text(), newURL);
+
+    // open the config file and a temporary new config file
+    QString tmpConfigFileName = configFileName + QString(".tmp");
+    QFile inFile(configFileName);
+    if (!inFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        return result;
+    QTextStream inStream(&inFile);
+    QFile outFile(tmpConfigFileName);
+    if (!outFile.open(QIODevice::WriteOnly | QIODevice::Text))
+        return result;
+    QTextStream outStream(&outFile);
+
+    // replace parameters
+    while (!inStream.atEnd()) 
+    {
+        QString line = inStream.readLine();
+        if (line.indexOf(configLineToEditIndicator) > -1)
+        {
+            // save indentation sincesetParameters returns the bare combined parameter string
+            QString indentation = line.left(line.indexOf(configLineToEditIndicator));
+            line = indentation + setParameters(line, insertSSID, SSID, insertPassword, password, replaceURL, newURL);
+        }
+        outStream << line << endl;
+    }
+    // replace the config file with the new file
+    inFile.close();
+    inFile.remove();
+    outFile.close();
+    outFile.rename(configFileName);
+    return result;
+}
 void MainWindow::setParameter(QStringList &parameters, QString key, QString value)
 {
     if (parameters.indexOf(QRegExp(key + QString("=\\S*"))) > -1)

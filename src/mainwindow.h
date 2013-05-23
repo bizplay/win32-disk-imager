@@ -80,6 +80,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		bool needsURLInsertion(QString leValue, QString &value);
 		bool configurationShouldBeWritten();
 		bool writeOSConfiguration(char *ltr);
+		bool updateConfigurationFile(QString configFileName);
 		void setParameter(QStringList &parameters, QString key, QString value);
 		QStringList trimList(QStringList list);
 		void removeParameter(QStringList &parameters, QString keyAndValue);
