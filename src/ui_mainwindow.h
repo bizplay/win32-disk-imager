@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Tue Apr 16 22:42:49 2013
+** Created: Fri May 24 20:41:51 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -16,7 +16,7 @@
 #include <QtGui/QButtonGroup>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
-#include <QtGui/QFormLayout>
+#include <QtGui/QGridLayout>
 #include <QtGui/QGroupBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
@@ -36,21 +36,21 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralwidget;
-    QFormLayout *formLayout;
+    QGridLayout *gridLayout;
+    QGroupBox *groupBox_3;
+    QGridLayout *gridLayout_2;
+    QHBoxLayout *horizontalLayout_5;
+    QLabel *label;
+    QLineEdit *leTimeHours;
+    QHBoxLayout *horizontalLayout_6;
+    QLabel *label_2;
+    QLineEdit *leTimeMinutes;
+    QHBoxLayout *horizontalLayout_7;
+    QLabel *label_3;
+    QComboBox *cbTimeZone;
+    QGroupBox *groupBox_5;
     QHBoxLayout *hboxLayout;
-    QGroupBox *groupBox;
-    QHBoxLayout *hboxLayout1;
-    QLineEdit *leFile;
-    QToolButton *tbBrowse;
-    QGroupBox *groupBox_2;
-    QHBoxLayout *hboxLayout2;
-    QComboBox *cboxDevice;
-    QHBoxLayout *hboxLayout3;
-    QVBoxLayout *verticalLayout;
-    QHBoxLayout *horizontalLayout;
-    QCheckBox *md5CheckBox;
-    QLabel *md5header;
-    QLabel *md5label;
+    QProgressBar *progressbar;
     QGroupBox *gbWireless;
     QVBoxLayout *verticalLayout_3;
     QVBoxLayout *verticalLayout_2;
@@ -62,140 +62,122 @@ public:
     QLabel *lbPassword;
     QLineEdit *lePassword;
     QCheckBox *cbWEP;
-    QGroupBox *gbTarget;
-    QVBoxLayout *verticalLayout_4;
-    QHBoxLayout *horizontalLayout_4;
-    QLabel *lbTarget;
-    QLineEdit *leTarget;
-    QGroupBox *groupBox_5;
-    QHBoxLayout *hboxLayout4;
-    QProgressBar *progressbar;
-    QHBoxLayout *hboxLayout5;
+    QHBoxLayout *hboxLayout1;
     QLabel *VerLabel;
     QPushButton *bCancel;
     QPushButton *bRead;
     QPushButton *bWrite;
     QPushButton *bExit;
+    QHBoxLayout *hboxLayout2;
+    QGroupBox *groupBox;
+    QHBoxLayout *hboxLayout3;
+    QLineEdit *leFile;
+    QToolButton *tbBrowse;
+    QGroupBox *groupBox_2;
+    QHBoxLayout *hboxLayout4;
+    QComboBox *cboxDevice;
+    QHBoxLayout *hboxLayout5;
+    QVBoxLayout *verticalLayout;
+    QHBoxLayout *horizontalLayout;
+    QCheckBox *md5CheckBox;
+    QLabel *md5header;
+    QLabel *md5label;
+    QGroupBox *gbTarget;
+    QVBoxLayout *verticalLayout_4;
+    QHBoxLayout *horizontalLayout_4;
+    QLabel *lbTarget;
+    QLineEdit *leTarget;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(355, 384);
+        MainWindow->resize(355, 452);
         MainWindow->setAcceptDrops(true);
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/images/images/Win32DiskImager.png"), QSize(), QIcon::Normal, QIcon::Off);
         MainWindow->setWindowIcon(icon);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        formLayout = new QFormLayout(centralwidget);
-        formLayout->setObjectName(QString::fromUtf8("formLayout"));
-        formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-        hboxLayout = new QHBoxLayout();
-        hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
-        groupBox = new QGroupBox(centralwidget);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        hboxLayout1 = new QHBoxLayout(groupBox);
-#ifndef Q_OS_MAC
-        hboxLayout1->setSpacing(6);
-#endif
-#ifndef Q_OS_MAC
-        hboxLayout1->setContentsMargins(9, 9, 9, 9);
-#endif
-        hboxLayout1->setObjectName(QString::fromUtf8("hboxLayout1"));
-        leFile = new QLineEdit(groupBox);
-        leFile->setObjectName(QString::fromUtf8("leFile"));
-
-        hboxLayout1->addWidget(leFile);
-
-        tbBrowse = new QToolButton(groupBox);
-        tbBrowse->setObjectName(QString::fromUtf8("tbBrowse"));
-        QIcon icon1;
-        icon1.addFile(QString::fromUtf8(":/images/images/browse.png"), QSize(), QIcon::Normal, QIcon::Off);
-        tbBrowse->setIcon(icon1);
-
-        hboxLayout1->addWidget(tbBrowse);
-
-
-        hboxLayout->addWidget(groupBox);
-
-        groupBox_2 = new QGroupBox(centralwidget);
-        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        hboxLayout2 = new QHBoxLayout(groupBox_2);
-#ifndef Q_OS_MAC
-        hboxLayout2->setSpacing(6);
-#endif
-#ifndef Q_OS_MAC
-        hboxLayout2->setContentsMargins(9, 9, 9, 9);
-#endif
-        hboxLayout2->setObjectName(QString::fromUtf8("hboxLayout2"));
-        cboxDevice = new QComboBox(groupBox_2);
-        cboxDevice->setObjectName(QString::fromUtf8("cboxDevice"));
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(cboxDevice->sizePolicy().hasHeightForWidth());
-        cboxDevice->setSizePolicy(sizePolicy);
+        sizePolicy.setHeightForWidth(centralwidget->sizePolicy().hasHeightForWidth());
+        centralwidget->setSizePolicy(sizePolicy);
+        gridLayout = new QGridLayout(centralwidget);
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        groupBox_3 = new QGroupBox(centralwidget);
+        groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
+        gridLayout_2 = new QGridLayout(groupBox_3);
+        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
+        horizontalLayout_5 = new QHBoxLayout();
+        horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
+        label = new QLabel(groupBox_3);
+        label->setObjectName(QString::fromUtf8("label"));
 
-        hboxLayout2->addWidget(cboxDevice);
+        horizontalLayout_5->addWidget(label);
+
+        leTimeHours = new QLineEdit(groupBox_3);
+        leTimeHours->setObjectName(QString::fromUtf8("leTimeHours"));
+
+        horizontalLayout_5->addWidget(leTimeHours);
 
 
-        hboxLayout->addWidget(groupBox_2);
+        gridLayout_2->addLayout(horizontalLayout_5, 0, 0, 1, 1);
+
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+        label_2 = new QLabel(groupBox_3);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+
+        horizontalLayout_6->addWidget(label_2);
+
+        leTimeMinutes = new QLineEdit(groupBox_3);
+        leTimeMinutes->setObjectName(QString::fromUtf8("leTimeMinutes"));
+
+        horizontalLayout_6->addWidget(leTimeMinutes);
 
 
-        formLayout->setLayout(0, QFormLayout::SpanningRole, hboxLayout);
+        gridLayout_2->addLayout(horizontalLayout_6, 0, 1, 1, 1);
 
-        hboxLayout3 = new QHBoxLayout();
+        horizontalLayout_7 = new QHBoxLayout();
+        horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
+        label_3 = new QLabel(groupBox_3);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+
+        horizontalLayout_7->addWidget(label_3);
+
+        cbTimeZone = new QComboBox(groupBox_3);
+        cbTimeZone->setObjectName(QString::fromUtf8("cbTimeZone"));
+
+        horizontalLayout_7->addWidget(cbTimeZone);
+
+
+        gridLayout_2->addLayout(horizontalLayout_7, 1, 0, 1, 2);
+
+
+        gridLayout->addWidget(groupBox_3, 4, 0, 1, 1);
+
+        groupBox_5 = new QGroupBox(centralwidget);
+        groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
+        hboxLayout = new QHBoxLayout(groupBox_5);
 #ifndef Q_OS_MAC
-        hboxLayout3->setSpacing(6);
+        hboxLayout->setSpacing(6);
 #endif
-        hboxLayout3->setContentsMargins(0, 0, 0, 0);
-        hboxLayout3->setObjectName(QString::fromUtf8("hboxLayout3"));
-        verticalLayout = new QVBoxLayout();
-        verticalLayout->setSpacing(0);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        horizontalLayout->setContentsMargins(9, -1, -1, -1);
-        md5CheckBox = new QCheckBox(centralwidget);
-        md5CheckBox->setObjectName(QString::fromUtf8("md5CheckBox"));
-        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(md5CheckBox->sizePolicy().hasHeightForWidth());
-        md5CheckBox->setSizePolicy(sizePolicy1);
-        md5CheckBox->setMinimumSize(QSize(20, 0));
+#ifndef Q_OS_MAC
+        hboxLayout->setContentsMargins(9, 9, 9, 9);
+#endif
+        hboxLayout->setObjectName(QString::fromUtf8("hboxLayout"));
+        progressbar = new QProgressBar(groupBox_5);
+        progressbar->setObjectName(QString::fromUtf8("progressbar"));
+        progressbar->setValue(0);
+        progressbar->setTextVisible(true);
 
-        horizontalLayout->addWidget(md5CheckBox);
-
-        md5header = new QLabel(centralwidget);
-        md5header->setObjectName(QString::fromUtf8("md5header"));
-        md5header->setEnabled(false);
-        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Preferred);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(md5header->sizePolicy().hasHeightForWidth());
-        md5header->setSizePolicy(sizePolicy2);
-
-        horizontalLayout->addWidget(md5header);
-
-        md5label = new QLabel(centralwidget);
-        md5label->setObjectName(QString::fromUtf8("md5label"));
-        md5label->setEnabled(false);
-        md5label->setText(QString::fromUtf8(""));
-        md5label->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
-
-        horizontalLayout->addWidget(md5label);
+        hboxLayout->addWidget(progressbar);
 
 
-        verticalLayout->addLayout(horizontalLayout);
-
-
-        hboxLayout3->addLayout(verticalLayout);
-
-
-        formLayout->setLayout(1, QFormLayout::LabelRole, hboxLayout3);
+        gridLayout->addWidget(groupBox_5, 6, 0, 1, 1);
 
         gbWireless = new QGroupBox(centralwidget);
         gbWireless->setObjectName(QString::fromUtf8("gbWireless"));
@@ -247,7 +229,154 @@ public:
         verticalLayout_3->addLayout(verticalLayout_2);
 
 
-        formLayout->setWidget(2, QFormLayout::SpanningRole, gbWireless);
+        gridLayout->addWidget(gbWireless, 3, 0, 1, 1);
+
+        hboxLayout1 = new QHBoxLayout();
+        hboxLayout1->setObjectName(QString::fromUtf8("hboxLayout1"));
+        VerLabel = new QLabel(centralwidget);
+        VerLabel->setObjectName(QString::fromUtf8("VerLabel"));
+        VerLabel->setBaseSize(QSize(40, 20));
+        VerLabel->setText(QString::fromUtf8(""));
+        VerLabel->setAlignment(Qt::AlignCenter);
+
+        hboxLayout1->addWidget(VerLabel);
+
+        bCancel = new QPushButton(centralwidget);
+        bCancel->setObjectName(QString::fromUtf8("bCancel"));
+        bCancel->setEnabled(false);
+        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(bCancel->sizePolicy().hasHeightForWidth());
+        bCancel->setSizePolicy(sizePolicy1);
+
+        hboxLayout1->addWidget(bCancel);
+
+        bRead = new QPushButton(centralwidget);
+        bRead->setObjectName(QString::fromUtf8("bRead"));
+        sizePolicy1.setHeightForWidth(bRead->sizePolicy().hasHeightForWidth());
+        bRead->setSizePolicy(sizePolicy1);
+
+        hboxLayout1->addWidget(bRead);
+
+        bWrite = new QPushButton(centralwidget);
+        bWrite->setObjectName(QString::fromUtf8("bWrite"));
+        sizePolicy1.setHeightForWidth(bWrite->sizePolicy().hasHeightForWidth());
+        bWrite->setSizePolicy(sizePolicy1);
+
+        hboxLayout1->addWidget(bWrite);
+
+        bExit = new QPushButton(centralwidget);
+        bExit->setObjectName(QString::fromUtf8("bExit"));
+        sizePolicy1.setHeightForWidth(bExit->sizePolicy().hasHeightForWidth());
+        bExit->setSizePolicy(sizePolicy1);
+
+        hboxLayout1->addWidget(bExit);
+
+
+        gridLayout->addLayout(hboxLayout1, 7, 0, 1, 1);
+
+        hboxLayout2 = new QHBoxLayout();
+        hboxLayout2->setObjectName(QString::fromUtf8("hboxLayout2"));
+        groupBox = new QGroupBox(centralwidget);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        hboxLayout3 = new QHBoxLayout(groupBox);
+#ifndef Q_OS_MAC
+        hboxLayout3->setSpacing(6);
+#endif
+#ifndef Q_OS_MAC
+        hboxLayout3->setContentsMargins(9, 9, 9, 9);
+#endif
+        hboxLayout3->setObjectName(QString::fromUtf8("hboxLayout3"));
+        leFile = new QLineEdit(groupBox);
+        leFile->setObjectName(QString::fromUtf8("leFile"));
+
+        hboxLayout3->addWidget(leFile);
+
+        tbBrowse = new QToolButton(groupBox);
+        tbBrowse->setObjectName(QString::fromUtf8("tbBrowse"));
+        QIcon icon1;
+        icon1.addFile(QString::fromUtf8(":/images/images/browse.png"), QSize(), QIcon::Normal, QIcon::Off);
+        tbBrowse->setIcon(icon1);
+
+        hboxLayout3->addWidget(tbBrowse);
+
+
+        hboxLayout2->addWidget(groupBox);
+
+        groupBox_2 = new QGroupBox(centralwidget);
+        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
+        hboxLayout4 = new QHBoxLayout(groupBox_2);
+#ifndef Q_OS_MAC
+        hboxLayout4->setSpacing(6);
+#endif
+#ifndef Q_OS_MAC
+        hboxLayout4->setContentsMargins(9, 9, 9, 9);
+#endif
+        hboxLayout4->setObjectName(QString::fromUtf8("hboxLayout4"));
+        cboxDevice = new QComboBox(groupBox_2);
+        cboxDevice->setObjectName(QString::fromUtf8("cboxDevice"));
+        QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(cboxDevice->sizePolicy().hasHeightForWidth());
+        cboxDevice->setSizePolicy(sizePolicy2);
+
+        hboxLayout4->addWidget(cboxDevice);
+
+
+        hboxLayout2->addWidget(groupBox_2);
+
+
+        gridLayout->addLayout(hboxLayout2, 0, 0, 1, 1);
+
+        hboxLayout5 = new QHBoxLayout();
+#ifndef Q_OS_MAC
+        hboxLayout5->setSpacing(6);
+#endif
+        hboxLayout5->setContentsMargins(0, 0, 0, 0);
+        hboxLayout5->setObjectName(QString::fromUtf8("hboxLayout5"));
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setSpacing(0);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        horizontalLayout->setContentsMargins(9, -1, -1, -1);
+        md5CheckBox = new QCheckBox(centralwidget);
+        md5CheckBox->setObjectName(QString::fromUtf8("md5CheckBox"));
+        sizePolicy1.setHeightForWidth(md5CheckBox->sizePolicy().hasHeightForWidth());
+        md5CheckBox->setSizePolicy(sizePolicy1);
+        md5CheckBox->setMinimumSize(QSize(20, 0));
+
+        horizontalLayout->addWidget(md5CheckBox);
+
+        md5header = new QLabel(centralwidget);
+        md5header->setObjectName(QString::fromUtf8("md5header"));
+        md5header->setEnabled(false);
+        QSizePolicy sizePolicy3(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(md5header->sizePolicy().hasHeightForWidth());
+        md5header->setSizePolicy(sizePolicy3);
+
+        horizontalLayout->addWidget(md5header);
+
+        md5label = new QLabel(centralwidget);
+        md5label->setObjectName(QString::fromUtf8("md5label"));
+        md5label->setEnabled(false);
+        md5label->setText(QString::fromUtf8(""));
+        md5label->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
+
+        horizontalLayout->addWidget(md5label);
+
+
+        verticalLayout->addLayout(horizontalLayout);
+
+
+        hboxLayout5->addLayout(verticalLayout);
+
+
+        gridLayout->addLayout(hboxLayout5, 1, 0, 1, 1);
 
         gbTarget = new QGroupBox(centralwidget);
         gbTarget->setObjectName(QString::fromUtf8("gbTarget"));
@@ -269,74 +398,27 @@ public:
         verticalLayout_4->addLayout(horizontalLayout_4);
 
 
-        formLayout->setWidget(3, QFormLayout::SpanningRole, gbTarget);
-
-        groupBox_5 = new QGroupBox(centralwidget);
-        groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
-        hboxLayout4 = new QHBoxLayout(groupBox_5);
-#ifndef Q_OS_MAC
-        hboxLayout4->setSpacing(6);
-#endif
-#ifndef Q_OS_MAC
-        hboxLayout4->setContentsMargins(9, 9, 9, 9);
-#endif
-        hboxLayout4->setObjectName(QString::fromUtf8("hboxLayout4"));
-        progressbar = new QProgressBar(groupBox_5);
-        progressbar->setObjectName(QString::fromUtf8("progressbar"));
-        progressbar->setValue(0);
-        progressbar->setTextVisible(true);
-
-        hboxLayout4->addWidget(progressbar);
-
-
-        formLayout->setWidget(4, QFormLayout::SpanningRole, groupBox_5);
-
-        hboxLayout5 = new QHBoxLayout();
-        hboxLayout5->setObjectName(QString::fromUtf8("hboxLayout5"));
-        VerLabel = new QLabel(centralwidget);
-        VerLabel->setObjectName(QString::fromUtf8("VerLabel"));
-        VerLabel->setBaseSize(QSize(40, 20));
-        VerLabel->setText(QString::fromUtf8(""));
-        VerLabel->setAlignment(Qt::AlignCenter);
-
-        hboxLayout5->addWidget(VerLabel);
-
-        bCancel = new QPushButton(centralwidget);
-        bCancel->setObjectName(QString::fromUtf8("bCancel"));
-        bCancel->setEnabled(false);
-        sizePolicy1.setHeightForWidth(bCancel->sizePolicy().hasHeightForWidth());
-        bCancel->setSizePolicy(sizePolicy1);
-
-        hboxLayout5->addWidget(bCancel);
-
-        bRead = new QPushButton(centralwidget);
-        bRead->setObjectName(QString::fromUtf8("bRead"));
-        sizePolicy1.setHeightForWidth(bRead->sizePolicy().hasHeightForWidth());
-        bRead->setSizePolicy(sizePolicy1);
-
-        hboxLayout5->addWidget(bRead);
-
-        bWrite = new QPushButton(centralwidget);
-        bWrite->setObjectName(QString::fromUtf8("bWrite"));
-        sizePolicy1.setHeightForWidth(bWrite->sizePolicy().hasHeightForWidth());
-        bWrite->setSizePolicy(sizePolicy1);
-
-        hboxLayout5->addWidget(bWrite);
-
-        bExit = new QPushButton(centralwidget);
-        bExit->setObjectName(QString::fromUtf8("bExit"));
-        sizePolicy1.setHeightForWidth(bExit->sizePolicy().hasHeightForWidth());
-        bExit->setSizePolicy(sizePolicy1);
-
-        hboxLayout5->addWidget(bExit);
-
-
-        formLayout->setLayout(5, QFormLayout::LabelRole, hboxLayout5);
+        gridLayout->addWidget(gbTarget, 2, 0, 1, 1);
 
         MainWindow->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         MainWindow->setStatusBar(statusbar);
+        QWidget::setTabOrder(leFile, tbBrowse);
+        QWidget::setTabOrder(tbBrowse, cboxDevice);
+        QWidget::setTabOrder(cboxDevice, leTarget);
+        QWidget::setTabOrder(leTarget, leSSID);
+        QWidget::setTabOrder(leSSID, cbHidden);
+        QWidget::setTabOrder(cbHidden, lePassword);
+        QWidget::setTabOrder(lePassword, cbWEP);
+        QWidget::setTabOrder(cbWEP, leTimeHours);
+        QWidget::setTabOrder(leTimeHours, leTimeMinutes);
+        QWidget::setTabOrder(leTimeMinutes, cbTimeZone);
+        QWidget::setTabOrder(cbTimeZone, bWrite);
+        QWidget::setTabOrder(bWrite, bExit);
+        QWidget::setTabOrder(bExit, bCancel);
+        QWidget::setTabOrder(bCancel, md5CheckBox);
+        QWidget::setTabOrder(md5CheckBox, bRead);
 
         retranslateUi(MainWindow);
         QObject::connect(bExit, SIGNAL(clicked()), MainWindow, SLOT(close()));
@@ -347,23 +429,17 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Win32 Disk Imager", 0, QApplication::UnicodeUTF8));
-        groupBox->setTitle(QApplication::translate("MainWindow", "Image File", 0, QApplication::UnicodeUTF8));
-        tbBrowse->setText(QApplication::translate("MainWindow", "...", 0, QApplication::UnicodeUTF8));
-        groupBox_2->setTitle(QApplication::translate("MainWindow", "Device", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        md5CheckBox->setToolTip(QApplication::translate("MainWindow", "If checked, will generate the MD5 hash for the image file", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        md5CheckBox->setText(QString());
-        md5header->setText(QApplication::translate("MainWindow", "MD5 Hash: ", 0, QApplication::UnicodeUTF8));
+        groupBox_3->setTitle(QApplication::translate("MainWindow", "Shutdown time", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("MainWindow", "Hours (0..23)", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("MainWindow", "Minutes (00..59)", 0, QApplication::UnicodeUTF8));
+        label_3->setText(QApplication::translate("MainWindow", "Timezone", 0, QApplication::UnicodeUTF8));
+        groupBox_5->setTitle(QApplication::translate("MainWindow", "Progress", 0, QApplication::UnicodeUTF8));
+        progressbar->setFormat(QApplication::translate("MainWindow", "%p%", 0, QApplication::UnicodeUTF8));
         gbWireless->setTitle(QApplication::translate("MainWindow", "Wireless", 0, QApplication::UnicodeUTF8));
         lbSSID->setText(QApplication::translate("MainWindow", "SSID", 0, QApplication::UnicodeUTF8));
         cbHidden->setText(QApplication::translate("MainWindow", "Hidden", 0, QApplication::UnicodeUTF8));
         lbPassword->setText(QApplication::translate("MainWindow", "Password", 0, QApplication::UnicodeUTF8));
         cbWEP->setText(QApplication::translate("MainWindow", "WEP", 0, QApplication::UnicodeUTF8));
-        gbTarget->setTitle(QApplication::translate("MainWindow", "Target", 0, QApplication::UnicodeUTF8));
-        lbTarget->setText(QApplication::translate("MainWindow", "URL or Company ID", 0, QApplication::UnicodeUTF8));
-        groupBox_5->setTitle(QApplication::translate("MainWindow", "Progress", 0, QApplication::UnicodeUTF8));
-        progressbar->setFormat(QApplication::translate("MainWindow", "%p%", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_STATUSTIP
         bCancel->setStatusTip(QApplication::translate("MainWindow", "Cancel current process.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_STATUSTIP
@@ -383,6 +459,16 @@ public:
         bExit->setStatusTip(QApplication::translate("MainWindow", "Exit Win32 Disk Imager", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_STATUSTIP
         bExit->setText(QApplication::translate("MainWindow", "Exit", 0, QApplication::UnicodeUTF8));
+        groupBox->setTitle(QApplication::translate("MainWindow", "Image File", 0, QApplication::UnicodeUTF8));
+        tbBrowse->setText(QApplication::translate("MainWindow", "...", 0, QApplication::UnicodeUTF8));
+        groupBox_2->setTitle(QApplication::translate("MainWindow", "Device", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        md5CheckBox->setToolTip(QApplication::translate("MainWindow", "If checked, will generate the MD5 hash for the image file", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        md5CheckBox->setText(QString());
+        md5header->setText(QApplication::translate("MainWindow", "MD5 Hash: ", 0, QApplication::UnicodeUTF8));
+        gbTarget->setTitle(QApplication::translate("MainWindow", "Playback address", 0, QApplication::UnicodeUTF8));
+        lbTarget->setText(QApplication::translate("MainWindow", "URL: http://playr.biz/", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

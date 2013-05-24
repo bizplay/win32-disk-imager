@@ -36,6 +36,7 @@
 #include <shlobj.h>
 #include <iostream>
 #include <fstream>
+//#include <TimeStamp>
 
 #include "disk.h"
 #include "mainwindow.h"
@@ -76,9 +77,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         if (it.fileInfo().filePath().contains(dir)){
             myHomeDir = it.filePath();
             break;
-
         }
     }
+    allTimeZones = initTimeZones();
+    for (int i = 0; i < allTimeZones.count(); i++)
+        cbTimeZone->addItem(allTimeZones[i].description, QVariant(i));
+
+    // make md5 fields invisible, they might confuse our users
+    md5CheckBox->setVisible(false);
+    md5header->setVisible(false);
+    md5label->setVisible(false);
 }
 
 MainWindow::~MainWindow()
@@ -104,16 +112,115 @@ MainWindow::~MainWindow()
         sectorData = NULL;
     }
 }
+QVector<TimeZone> MainWindow::initTimeZones()
+{
+    QVector<TimeZone> result = QVector<TimeZone>();
 
+    result << TimeZone(QString(""), QString(" "),  QString(QString("00:00")), 0, 0, 0);
+    result << TimeZone(QString("Pacific/Midway"), QString("(GMT-11:00) Midway Island, Samoa"),  QString(QString("-11:00")), -1, 11, 0);
+    result << TimeZone(QString("America/Adak"), QString("(GMT-10:00) Hawaii-Aleutian"), QString("-10:00"), -1, 10, 0);
+    result << TimeZone(QString("Pacific/Honolulu"), QString("(GMT-10:00) Hawaii"), QString("-10:00"), -1, 10, 0);
+    result << TimeZone(QString("Pacific/Marquesas"), QString("(GMT-09:30) Marquesas Islands"), QString("-09:30"), -1, 9, 30);
+    result << TimeZone(QString("Pacific/Gambier"), QString("(GMT-09:00) Gambier Islands"), QString("-09:00"), -1, 9, 0);
+    result << TimeZone(QString("America/Anchorage"), QString("(GMT-09:00) Alaska"), QString("-09:00"), -1, 9, 0);
+    result << TimeZone(QString("America/Tijuana"), QString("(GMT-08:00) Tijuana, Baja California"), QString("-08:00"), -1, 8, 0);
+    result << TimeZone(QString("Pacific/Pitcairn"), QString("(GMT-08:00) Pitcairn Islands"), QString("-08:00"), -1, 8, 0);
+    result << TimeZone(QString("America/Los_Angeles"), QString("(GMT-08:00) Pacific Time (US & Canada)"), QString("-08:00"), -1, 8, 0);
+    result << TimeZone(QString("America/Denver"), QString("(GMT-07:00) Mountain Time (US & Canada)"), QString("-07:00"), -1, 7, 0);
+    result << TimeZone(QString("America/Chihuahua"), QString("(GMT-07:00) Chihuahua, La Paz, Mazatlan"), QString("-07:00"), -1, 7, 0);
+    result << TimeZone(QString("America/Dawson_Creek"), QString("(GMT-07:00) Arizona"), QString("-07:00"), -1, 7, 0);
+    result << TimeZone(QString("America/Belize"), QString("(GMT-06:00) Saskatchewan, Central America"), QString("-06:00"), -1, 6, 0);
+    result << TimeZone(QString("America/Cancun"), QString("(GMT-06:00) Guadalajara, Mexico City, Monterrey"), QString("-06:00"), -1, 6, 0);
+    result << TimeZone(QString("Pacific/Easter"), QString("(GMT-06:00) Easter Island"), QString("-06:00"), -1, 6, 0);
+    result << TimeZone(QString("America/Chicago"), QString("(GMT-06:00) Central Time (US & Canada)"), QString("-06:00"), -1, 6, 0);
+    result << TimeZone(QString("America/New_York"), QString("(GMT-05:00) Eastern Time (US & Canada)"), QString("-05:00"), -1, 5, 0);
+    result << TimeZone(QString("America/Havana"), QString("(GMT-05:00) Cuba"), QString("-05:00"), -1, 5, 0);
+    result << TimeZone(QString("America/Bogota"), QString("(GMT-05:00) Bogota, Lima, Quito, Rio Branco"), QString("-05:00"), -1, 5, 0);
+    result << TimeZone(QString("America/Caracas"), QString("(GMT-04:30) Caracas"), QString("-04:30"), -1, 4, 30);
+    result << TimeZone(QString("America/Santiago"), QString("(GMT-04:00) Santiago"), QString("-04:00"), -1, 4, 0);
+    result << TimeZone(QString("America/La_Paz"), QString("(GMT-04:00) La Paz"), QString("-04:00"), -1, 4, 0);
+    result << TimeZone(QString("Atlantic/Stanley"), QString("(GMT-04:00) Faukland Islands"), QString("-04:00"), -1, 4, 0);
+    result << TimeZone(QString("America/Campo_Grande"), QString("(GMT-04:00) Brazil"), QString("-04:00"), -1, 4, 0);
+    result << TimeZone(QString("America/Goose_Bay"), QString("(GMT-04:00) Atlantic Time (Goose Bay)"), QString("-04:00"), -1, 4, 0);
+    result << TimeZone(QString("America/Glace_Bay"), QString("(GMT-04:00) Atlantic Time (Canada)"), QString("-04:00"), -1, 4, 0);
+    result << TimeZone(QString("America/St_Johns"), QString("(GMT-03:30) Newfoundland"), QString("-03:30"), -1, 3, 30);
+    result << TimeZone(QString("America/Araguaina"), QString("(GMT-03:00) Araguaina"), QString("-03:00"), -1, 3, 0);
+    result << TimeZone(QString("America/Montevideo"), QString("(GMT-03:00) Montevideo"), QString("-03:00"), -1, 3, 0);
+    result << TimeZone(QString("America/Miquelon"), QString("(GMT-03:00) Miquelon, St. Pierre"), QString("-03:00"), -1, 3, 0);
+    result << TimeZone(QString("America/Godthab"), QString("(GMT-03:00) Greenland"), QString("-03:00"), -1, 3, 0);
+    result << TimeZone(QString("America/Argentina/Buenos_Aires"), QString("(GMT-03:00) Buenos Aires"), QString("-03:00"), -1, 3, 0);
+    result << TimeZone(QString("America/Sao_Paulo"), QString("(GMT-03:00) Brasilia"), QString("-03:00"), -1, 3, 0);
+    result << TimeZone(QString("America/Noronha"), QString("(GMT-02:00) Mid-Atlantic"), QString("-02:00"), -1, 2, 0);
+    result << TimeZone(QString("Atlantic/Cape_Verde"), QString("(GMT-01:00) Cape Verde Is."), QString("-01:00"), -1, 1, 0);
+    result << TimeZone(QString("Atlantic/Azores"), QString("(GMT-01:00) Azores"), QString("-01:00"), -1, 1, 0);
+    result << TimeZone(QString("Europe/Dublin"), QString("(GMT) Greenwich Mean Time : Dublin"), QString("00:00"), 1, 0, 0);
+    result << TimeZone(QString("Europe/Lisbon"), QString("(GMT) Greenwich Mean Time : Lisbon"), QString("00:00"), 1, 0, 0);
+    result << TimeZone(QString("Europe/London"), QString("(GMT) Greenwich Mean Time : London"), QString("00:00"), 1, 0, 0);
+    result << TimeZone(QString("Africa/Abidjan"), QString("(GMT) Monrovia, Reykjavik"), QString("00:00"), 1, 0, 0);
+    result << TimeZone(QString("Europe/Amsterdam"), QString("(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna"), QString("+01:00"), +1, 1, 0);
+    result << TimeZone(QString("Europe/Belgrade"), QString("(GMT+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague"), QString("+01:00"), +1, 1, 0);
+    result << TimeZone(QString("Europe/Brussels"), QString("(GMT+01:00) Brussels, Copenhagen, Madrid, Paris"), QString("+01:00"), +1, 1, 0);
+    result << TimeZone(QString("Africa/Algiers"), QString("(GMT+01:00) West Central Africa"), QString("+01:00"), +1, 1, 0);
+    result << TimeZone(QString("Africa/Windhoek"), QString("(GMT+01:00) Windhoek"), QString("+01:00"), +1, 1, 0);
+    result << TimeZone(QString("Asia/Beirut"), QString("(GMT+02:00) Beirut"), QString("+02:00"), +1, 2, 0);
+    result << TimeZone(QString("Africa/Cairo"), QString("(GMT+02:00) Cairo"), QString("+02:00"), +1, 2, 0);
+    result << TimeZone(QString("Asia/Gaza"), QString("(GMT+02:00) Gaza"), QString("+02:00"), +1, 2, 0);
+    result << TimeZone(QString("Africa/Blantyre"), QString("(GMT+02:00) Harare, Pretoria"), QString("+02:00"), +1, 2, 0);
+    result << TimeZone(QString("Asia/Jerusalem"), QString("(GMT+02:00) Jerusalem"), QString("+02:00"), +1, 2, 0);
+    result << TimeZone(QString("Europe/Minsk"), QString("(GMT+02:00) Minsk"), QString("+02:00"), +1, 2, 0);
+    result << TimeZone(QString("Asia/Damascus"), QString("(GMT+02:00) Syria"), QString("+02:00"), +1, 2, 0);
+    result << TimeZone(QString("Europe/Moscow"), QString("(GMT+03:00) Moscow, St. Petersburg, Volgograd"), QString("+03:00"), +1, 3, 0);
+    result << TimeZone(QString("Africa/Addis_Ababa"), QString("(GMT+03:00) Nairobi"), QString("+03:00"), +1, 3, 0);
+    result << TimeZone(QString("Asia/Tehran"), QString("(GMT+03:30) Tehran"), QString("+03:30"), +1, 3, 30);
+    result << TimeZone(QString("Asia/Dubai"), QString("(GMT+04:00) Abu Dhabi, Muscat"), QString("+04:00"), +1, 4, 0);
+    result << TimeZone(QString("Asia/Yerevan"), QString("(GMT+04:00) Yerevan"), QString("+04:00"), +1, 4, 0);
+    result << TimeZone(QString("Asia/Kabul"), QString("(GMT+04:30) Kabul"), QString("+04:30"), +1, 4, 30);
+    result << TimeZone(QString("Asia/Yekaterinburg"), QString("(GMT+05:00) Ekaterinburg"), QString("+05:00"), +1, 5, 0);
+    result << TimeZone(QString("Asia/Tashkent"), QString("(GMT+05:00) Tashkent"), QString("+05:00"), +1, 5, 0);
+    result << TimeZone(QString("Asia/Kolkata"), QString("(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi"), QString("+05:30"), +1, 5, 30);
+    result << TimeZone(QString("Asia/Kathmandu"), QString("(GMT+05:45) Kathmandu"), QString("+05:45"), +1, 5, 45);
+    result << TimeZone(QString("Asia/Dhaka"), QString("(GMT+06:00) Astana, Dhaka"), QString("+06:00"), +1, 6, 0);
+    result << TimeZone(QString("Asia/Novosibirsk"), QString("(GMT+06:00) Novosibirsk"), QString("+06:00"), +1, 6, 0);
+    result << TimeZone(QString("Asia/Rangoon"), QString("(GMT+06:30) Yangon (Rangoon)"), QString("+06:30"), +1, 6, 30);
+    result << TimeZone(QString("Asia/Bangkok"), QString("(GMT+07:00) Bangkok, Hanoi, Jakarta"), QString("+07:00"), +1, 7, 0);
+    result << TimeZone(QString("Asia/Krasnoyarsk"), QString("(GMT+07:00) Krasnoyarsk"), QString("+07:00"), +1, 7, 0);
+    result << TimeZone(QString("Asia/Hong_Kong"), QString("(GMT+08:00) Beijing, Chongqing, Hong Kong, Urumqi"), QString("+08:00"), +1, 8, 0);
+    result << TimeZone(QString("Asia/Irkutsk"), QString("(GMT+08:00) Irkutsk, Ulaan Bataar"), QString("+08:00"), +1, 8, 0);
+    result << TimeZone(QString("Australia/Perth"), QString("(GMT+08:00) Perth"), QString("+08:00"), +1, 8, 0);
+    result << TimeZone(QString("Australia/Eucla"), QString("(GMT+08:45) Eucla"), QString("+08:45"), +1, 8, 45);
+    result << TimeZone(QString("Asia/Tokyo"), QString("(GMT+09:00) Osaka, Sapporo, Tokyo"), QString("+09:00"), +1, 9, 0);
+    result << TimeZone(QString("Asia/Seoul"), QString("(GMT+09:00) Seoul"), QString("+09:00"), +1, 9, 0);
+    result << TimeZone(QString("Asia/Yakutsk"), QString("(GMT+09:00) Yakutsk"), QString("+09:00"), +1, 9, 0);
+    result << TimeZone(QString("Australia/Adelaide"), QString("(GMT+09:30) Adelaide"), QString("+09:30"), +1, 9, 30);
+    result << TimeZone(QString("Australia/Darwin"), QString("(GMT+09:30) Darwin"), QString("+09:30"), +1, 9, 30);
+    result << TimeZone(QString("Australia/Brisbane"), QString("(GMT+10:00) Brisbane"), QString("+10:00"), +1, 10, 0);
+    result << TimeZone(QString("Australia/Hobart"), QString("(GMT+10:00) Hobart"), QString("+10:00"), +1, 10, 0);
+    result << TimeZone(QString("Asia/Vladivostok"), QString("(GMT+10:00) Vladivostok"), QString("+10:00"), +1, 10, 0);
+    result << TimeZone(QString("Australia/Lord_Howe"), QString("(GMT+10:30) Lord Howe Island"), QString("+10:30"), +1, 10, 30);
+    result << TimeZone(QString("Pacific/Noumea"), QString("(GMT+11:00) Solomon Is., New Caledonia"), QString("+11:00"), +1, 11, 0);
+    result << TimeZone(QString("Asia/Magadan"), QString("(GMT+11:00) Magadan"), QString("+11:00"), +1, 11, 0);
+    result << TimeZone(QString("Pacific/Norfolk"), QString("(GMT+11:30) Norfolk Island"), QString("+11:30"), +1, 11, 30);
+    result << TimeZone(QString("Asia/Anadyr"), QString("(GMT+12:00) Anadyr, Kamchatka"), QString("+12:00"), +1, 12, 0);
+    result << TimeZone(QString("Pacific/Auckland"), QString("(GMT+12:00) Auckland, Wellington"), QString("+12:00"), +1, 12, 0);
+    result << TimeZone(QString("Pacific/Fiji"), QString("(GMT+12:00) Fiji, Kamchatka, Marshall Is."), QString("+12:00"), +1, 12, 0);
+    result << TimeZone(QString("Pacific/Chatham"), QString("(GMT+12:45) Chatham Islands"), QString("+12:45"), +1, 12, 45);
+    result << TimeZone(QString("Pacific/Tongatapu"), QString("(GMT+13:00) Nuku Alofa"), QString("+13:00"), +1, 13, 0);
+    result << TimeZone(QString("Pacific/Kiritimati"), QString("(GMT+14:00) Kiritimati"), QString("+14:00"), +1, 14, 0);
+    return result;
+}
 void MainWindow::setReadWriteButtonState()
 {
     bool fileSelected = !(leFile->text().isEmpty());
     bool deviceSelected = (cboxDevice->count() > 0);
+    bool timeSettingsCorrect = ( 
+        (leTimeHours->text().isEmpty() && leTimeMinutes->text().isEmpty() && cbTimeZone->currentIndex() == 0) ||
+        ( ( !(leTimeHours->text().isEmpty()) || !(leTimeMinutes->text().isEmpty()) ) && cbTimeZone->currentIndex() != 0 )
+    );
     // set read and write buttons according to status of file/device
     //bRead->setEnabled(deviceSelected && fileSelected); disable, we only want to write
     bRead->setEnabled(false);
     //bWrite->setEnabled(deviceSelected && fileSelected); enable if either a file is selected or configuration data is present
-    bWrite->setEnabled(deviceSelected && (fileSelected || configurationShouldBeWritten()));
+    bWrite->setEnabled(deviceSelected && timeSettingsCorrect && (fileSelected || configurationShouldBeWritten()));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -139,7 +246,19 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore();
     }
 }
-
+void MainWindow::on_cbTimeZone_currentIndexChanged()
+{
+    myTimeZone = allTimeZones[cbTimeZone->itemData(cbTimeZone->currentIndex()).toInt()].name;
+    setReadWriteButtonState();
+}
+void MainWindow::on_leTimeHours_textChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::on_leTimeMinutes_textChanged()
+{
+    setReadWriteButtonState();
+}
 void MainWindow::on_tbBrowse_clicked()
 {
     QString filelocation = QFileDialog::getOpenFileName(NULL, tr("Select a disk image"), myHomeDir, "*.img;*.IMG;;*.*",
@@ -518,32 +637,27 @@ void MainWindow::disableWriteAndReadButtons()
     bWrite->setEnabled(false);
     bRead->setEnabled(false);
 }
-bool MainWindow::needsInsertion(QString leValue, QString &value)
+QString MainWindow::urlEncode(QString leValue)
 {
-    bool result = false;
-    if (!leValue.isEmpty())
-    {
-        value = QString(leValue);
-        value.replace(QString(" "), QString("%20"));
-        result = true;
-    }
-    return result;
+    return QUrl::toPercentEncoding(leValue);
 }
-bool MainWindow::needsURLInsertion(QString leValue, QString &value)
+QString MainWindow::replaceSpace(QString leValue)
 {
-    bool result = false;
-    if (!leValue.isEmpty())
-    {
-        QString tmp = QString(leValue);
-        // regaxp for urls: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/ 
-        // see: http://net.tutsplus.com/tutorials/other/8-regular-expressions-you-should-know/
-        if (tmp.indexOf(QRegExp("^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$")) > -1)
-        {
-            value = QString(leValue);
-            result = true;
-        }
-    }
-    return result;
+    return leValue.replace(" ", "%20");
+}
+bool MainWindow::needsInsertion(QString leValue)
+{
+    return !leValue.isEmpty();
+}
+bool MainWindow::needsInsertion(int hours, int minutes)
+{
+    return ((hours >= 0) || (minutes >= 0));
+}
+bool MainWindow::needsURLInsertion(QString leValue)
+{
+    // regaxp for urls: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/ 
+    // see: http://net.tutsplus.com/tutorials/other/8-regular-expressions-you-should-know/
+    return !leValue.isEmpty() && (leValue.indexOf(QRegExp("^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$")) > -1);
 }
 bool MainWindow::configurationShouldBeWritten()
 {
@@ -619,16 +733,20 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     disableWriteAndReadButtons();
 
     // construct parameter strings to find and replace
-    QString SSID;
-    bool insertSSID = needsInsertion(leSSID->text(), SSID);
-    QString password;
-    bool insertPassword = needsInsertion(lePassword->text(), password);
+    QString SSID = replaceSpace(leSSID->text());
+    bool insertSSID = needsInsertion(leSSID->text());
+    QString password = replaceSpace(lePassword->text());
+    bool insertPassword = needsInsertion(lePassword->text());
     if (!insertPassword && (cbWEP->checkState() != Qt::Unchecked || cbHidden->checkState() != Qt::Unchecked))
     {
         insertPassword = true;
     }
     QString newURL = QString("http://www.bizplay.com/2400/74");
-    bool replaceURL = needsURLInsertion(leTarget->text(), newURL);
+    bool replaceURL = needsURLInsertion(leTarget->text());
+    if (replaceURL) newURL = leTarget->text();
+    int hours = toInt(leTimeHours->text());
+    int minutes = toInt(leTimeMinutes->text());
+    bool insertCron = needsInsertion(hours, minutes);
 
     // open the config file and a temporary new config file
     QString tmpConfigFileName = configFileName + QString(".tmp");
@@ -649,7 +767,10 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
         {
             // save indentation sincesetParameters returns the bare combined parameter string
             QString indentation = line.left(line.indexOf(configLineToEditIndicator));
-            line = indentation + setParameters(line, insertSSID, SSID, insertPassword, password, replaceURL, newURL);
+            line = indentation + setParameters(line, insertSSID, SSID, 
+                                               insertPassword, password, 
+                                               replaceURL, newURL,
+                                               insertCron, hours, minutes, myTimeZone);
         }
         outStream << line << endl;
     }
@@ -678,15 +799,29 @@ void MainWindow::removeParameter(QStringList &parameters, QString keyAndValue)
         parameters.replaceInStrings(QRegExp(keyAndValue), QString(""));
     }
 }
-QString MainWindow::setParameters(QString line, bool insertSSID, QString SSID, bool insertPassword, QString password, bool replaceURL, QString newURL)
+QString MainWindow::setParameters(QString line, 
+                                  bool insertSSID, QString SSID, 
+                                  bool insertPassword, QString password, 
+                                  bool replaceURL, QString newURL,
+                                  bool insertCron, int hours, int minutes, QString timeZone)
 {
     QStringList items = trimList(line.split(" "));
     QStringList parameters = items.filter(QRegExp("\\S+"));
     setSSIDParameter(parameters, insertSSID, SSID);
     setPasswordParameter(parameters, insertPassword, password);
     setURLParameter(parameters, replaceURL, newURL);
+    setCronParameter(parameters, insertCron, hours, minutes, timeZone);
     QStringList nonEmptyParameters = parameters.filter(QRegExp("\\S+"));
     return nonEmptyParameters.join(QString(" "));
+}
+int MainWindow::toInt(QString string)
+{
+    int result = -1;
+    if (string == NULL || string == QString()) return result;
+    bool OK;
+    result = string.toInt(&OK, 10);
+    if (!OK) result = -1;
+    return result; 
 }
 QStringList MainWindow::trimList(QStringList list)
 {
@@ -752,6 +887,26 @@ void MainWindow::setURLParameter(QStringList &parameters, bool replaceURL, QStri
     else
     {
         setParameter(parameters, QString("homepage"), currentURL);
+    }
+}
+void MainWindow::setCronParameter(QStringList &parameters, bool insertCron, int hours, int minutes, QString timeZone)
+{
+    // QMessageBox::warning(NULL, "InsertCron", (insertCron ? QString("InsertCron true") : QString("InsertCron false")));
+    if (insertCron)
+    {
+        setParameter(parameters, QString("timezone"), timeZone);
+        setParameter(parameters, QString("cron"), (minutes >= 0 && minutes < 10 ? QString("0") : QString("")) 
+                                                  + QString::number(((minutes < 0) || (minutes > 59)) ? 00 : minutes) 
+                                                  + QString("%20") 
+                                                  + (hours >= 0 && hours < 10 ? QString("0") : QString(""))
+                                                  + QString::number(((hours < 0) || (hours > 23)) ? 00 : hours)
+                                                  + QString("%20*%20*%20*%20root%20poweroff"));
+    }
+    else
+    {
+        // remove Cron parameters
+        removeParameter(parameters, QString("timezone=\\S*"));
+        removeParameter(parameters, QString("cron=\\S*"));
     }
 }
 void MainWindow::on_bRead_clicked()

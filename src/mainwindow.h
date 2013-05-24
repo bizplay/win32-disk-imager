@@ -34,6 +34,7 @@
 #include <winioctl.h>
 #include "ui_mainwindow.h"
 #include "disk.h"
+#include "timezone.cpp"
 
 class MainWindow : public QMainWindow, public Ui::MainWindow
 {
@@ -45,6 +46,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         enum Status {STATUS_IDLE=0, STATUS_READING, STATUS_WRITING, STATUS_EXIT, STATUS_CANCELED};
 		bool winEvent ( MSG * msg, long * result );
 	protected slots:
+		void on_leTimeHours_textChanged();
+		void on_leTimeMinutes_textChanged();
+		void on_cbTimeZone_currentIndexChanged();
 		void on_tbBrowse_clicked();
 		void on_bCancel_clicked();
 		void on_bWrite_clicked();
@@ -58,6 +62,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void on_lePassword_textChanged();
 		void on_leTarget_textChanged();
 	private:
+		QVector<TimeZone> initTimeZones();
 		// find attached devices
 		void getLogicalDrives();
 		void setReadWriteButtonState();
@@ -76,18 +81,27 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void closeRawDiskHandle();
 		void deleteData();
 		void deleteDataIdleStatusRemoveLockAndCloseVolumeHandles();
-		bool needsInsertion(QString leValue, QString &value);
-		bool needsURLInsertion(QString leValue, QString &value);
+		QString urlEncode(QString leValue);
+		QString replaceSpace(QString leValue);
+		bool needsInsertion(QString leValue);
+		bool needsInsertion(int hours, int minutes);
+		bool needsURLInsertion(QString leValue);
 		bool configurationShouldBeWritten();
 		bool writeOSConfiguration(char *ltr);
 		bool updateConfigurationFile(QString configFileName);
 		void setParameter(QStringList &parameters, QString key, QString value);
 		QStringList trimList(QStringList list);
 		void removeParameter(QStringList &parameters, QString keyAndValue);
-		QString setParameters(QString line, bool insertSSID, QString SSID, bool insertPassword, QString password, bool replaceURL, QString newURL);
+		QString setParameters(QString line, 
+                              bool insertSSID, QString SSID, 
+                              bool insertPassword, QString password, 
+                              bool replaceURL, QString newURL,
+                              bool insertCron, int hours, int minutes, QString timeZone);
 		void setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID);
 		void setPasswordParameter(QStringList &parameters, bool insertPassword, QString password);
 		void setURLParameter(QStringList &parameters, bool replaceURL, QString newURL);
+		int toInt(QString minuteString);
+		void setCronParameter(QStringList &parameters, bool insertCron, int hours, int minutes, QString timeZone);
 
 		HANDLE hVolume;
 		HANDLE hFile;
@@ -99,6 +113,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void generateMd5(char *filename);
         QString myFile;
         QString myHomeDir;
+        QVector<TimeZone> allTimeZones;
+        QString myTimeZone;
 };
 
 #endif // MAINWINDOW_H
