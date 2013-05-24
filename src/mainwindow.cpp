@@ -79,9 +79,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             break;
         }
     }
+
+    // init time zone drop box
     allTimeZones = initTimeZones();
     for (int i = 0; i < allTimeZones.count(); i++)
         cbTimeZone->addItem(allTimeZones[i].description, QVariant(i));
+
+    // init WPA WEP drop box
+    cbWPA_WEP->addItem(QString("WPA/WPA2"),QVariant(0));
+    cbWPA_WEP->addItem(QString("WEP"),QVariant(1));
 
     // make md5 fields invisible, they might confuse our users
     md5CheckBox->setVisible(false);
@@ -251,11 +257,23 @@ void MainWindow::on_cbTimeZone_currentIndexChanged()
     myTimeZone = allTimeZones[cbTimeZone->itemData(cbTimeZone->currentIndex()).toInt()].name;
     setReadWriteButtonState();
 }
+void MainWindow::on_cbWPA_WEP_currentIndexChanged()
+{
+    setReadWriteButtonState();
+}
 void MainWindow::on_leTimeHours_textChanged()
 {
     setReadWriteButtonState();
 }
 void MainWindow::on_leTimeMinutes_textChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::on_leCIN_textChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::on_leChannelID_textChanged()
 {
     setReadWriteButtonState();
 }
@@ -385,7 +403,7 @@ void MainWindow::on_md5CheckBox_stateChanged()
         md5label->clear();
     }
 }
-void MainWindow::on_cbWEP_stateChanged()
+void MainWindow::on_cbWPA_WEP_stateChanged()
 {
     setReadWriteButtonState();
 }
@@ -649,6 +667,10 @@ bool MainWindow::needsInsertion(QString leValue)
 {
     return !leValue.isEmpty();
 }
+bool MainWindow::needsInsertion(QString leValue1, QString leValue2)
+{
+    return !leValue1.isEmpty() && !leValue2.isEmpty();
+}
 bool MainWindow::needsInsertion(int hours, int minutes)
 {
     return ((hours >= 0) || (minutes >= 0));
@@ -663,9 +685,10 @@ bool MainWindow::configurationShouldBeWritten()
 {
     bool result = false;
     result = ( !leSSID->text().isEmpty() 
-               || !leTarget->text().isEmpty() 
+               || !leCIN->text().isEmpty() 
+               || !leChannelID->text().isEmpty() 
                || !lePassword->text().isEmpty() 
-               || cbWEP->checkState() != Qt::Unchecked 
+               || cbWPA_WEP->currentIndex() != 0 
                || cbHidden->checkState() != Qt::Unchecked
              );
     return result;
@@ -737,13 +760,13 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     bool insertSSID = needsInsertion(leSSID->text());
     QString password = replaceSpace(lePassword->text());
     bool insertPassword = needsInsertion(lePassword->text());
-    if (!insertPassword && (cbWEP->checkState() != Qt::Unchecked || cbHidden->checkState() != Qt::Unchecked))
+    if (!insertPassword && (cbWPA_WEP->currentIndex() != 0 || cbHidden->checkState() != Qt::Unchecked || insertSSID))
     {
         insertPassword = true;
     }
-    QString newURL = QString("http://www.bizplay.com/2400/74");
-    bool replaceURL = needsURLInsertion(leTarget->text());
-    if (replaceURL) newURL = leTarget->text();
+    QString newURL;
+    bool replaceURL = needsInsertion(leCIN->text(), leChannelID->text());
+    if (replaceURL) newURL = QString("http://playr.com/") + leCIN->text() + QString("/") + leChannelID->text();
     int hours = toInt(leTimeHours->text());
     int minutes = toInt(leTimeMinutes->text());
     bool insertCron = needsInsertion(hours, minutes);
@@ -843,7 +866,7 @@ void MainWindow::setSSIDParameter(QStringList &parameters, bool insertSSID, QStr
     }
 }
 void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPassword, QString password)
-{
+{    
     if (insertPassword)
     {
         if (cbHidden->checkState() == Qt::Unchecked) 
@@ -858,27 +881,47 @@ void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPasswo
             setParameter(parameters, QString("wpa-ap-scan"), QString("1"));
             setParameter(parameters, QString("wpa-scan-ssid"), QString("1"));
         }
-            if (cbWEP->checkState() == Qt::Unchecked) 
+        if (!password.isEmpty())
         {
-            // remove WEP key
-            removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
-            removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
-            // add WPA key
-            setParameter(parameters, QString("wpa-psk"), password);
+            if (cbWPA_WEP->currentIndex() == 0) 
+            {
+                // remove WEP key
+                removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
+                removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
+                // add WPA key
+                setParameter(parameters, QString("wpa-psk"), password);
+            }
+            else
+            {
+                // remove WPA key
+                removeParameter(parameters, QString("wpa-psk=\\S*"));
+                removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
+                // add WPA key
+                // setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"));
+                setParameter(parameters, QString("wpa-wep-key0"), password);
+            }
         }
         else
         {
-            // remove WPA key
+            // remove password key
+            removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
             removeParameter(parameters, QString("wpa-psk=\\S*"));
-            // add WPA key
+            // add setting indocating there is no security
             setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"));
-            setParameter(parameters, QString("wpa-wep-key0"), password);
         }
+    }
+    else
+    {
+        removeParameter(parameters, QString("wpa-ap-scan=1"));
+        removeParameter(parameters, QString("wpa-scan-ssid=1"));
+        removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
+        removeParameter(parameters, QString("wpa-psk=\\S*"));
+        removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
     }
 }
 void MainWindow::setURLParameter(QStringList &parameters, bool replaceURL, QString newURL)
 {
-    QString currentURL = QString("http://www.bizplay.com/2400/74");
+    QString currentURL = QString("http://playr.biz/2400/74");
 
     if (replaceURL)
     {
@@ -891,7 +934,6 @@ void MainWindow::setURLParameter(QStringList &parameters, bool replaceURL, QStri
 }
 void MainWindow::setCronParameter(QStringList &parameters, bool insertCron, int hours, int minutes, QString timeZone)
 {
-    // QMessageBox::warning(NULL, "InsertCron", (insertCron ? QString("InsertCron true") : QString("InsertCron false")));
     if (insertCron)
     {
         setParameter(parameters, QString("timezone"), timeZone);

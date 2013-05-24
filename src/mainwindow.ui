@@ -44,7 +44,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="leTimeHours"/>
+          <widget class="QLineEdit" name="leTimeHours">
+           <property name="maxLength">
+            <number>2</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -58,7 +62,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="leTimeMinutes"/>
+          <widget class="QLineEdit" name="leTimeMinutes">
+           <property name="maxLength">
+            <number>2</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -149,11 +157,7 @@
             <widget class="QLineEdit" name="lePassword"/>
            </item>
            <item>
-            <widget class="QCheckBox" name="cbWEP">
-             <property name="text">
-              <string>WEP</string>
-             </property>
-            </widget>
+            <widget class="QComboBox" name="cbWPA_WEP"/>
            </item>
           </layout>
          </item>
@@ -396,12 +400,30 @@
          <item>
           <widget class="QLabel" name="lbTarget">
            <property name="text">
-            <string>URL: http://playr.biz/</string>
+            <string>http://playr.biz/</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="leTarget"/>
+          <widget class="QLineEdit" name="leCIN">
+           <property name="maxLength">
+            <number>4</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>/</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="leChannelID">
+           <property name="maxLength">
+            <number>6</number>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
@@ -416,19 +438,20 @@
   <tabstop>leFile</tabstop>
   <tabstop>tbBrowse</tabstop>
   <tabstop>cboxDevice</tabstop>
-  <tabstop>leTarget</tabstop>
+  <tabstop>leCIN</tabstop>
+  <tabstop>leChannelID</tabstop>
   <tabstop>leSSID</tabstop>
   <tabstop>cbHidden</tabstop>
   <tabstop>lePassword</tabstop>
-  <tabstop>cbWEP</tabstop>
+  <tabstop>cbWPA_WEP</tabstop>
   <tabstop>leTimeHours</tabstop>
   <tabstop>leTimeMinutes</tabstop>
   <tabstop>cbTimeZone</tabstop>
   <tabstop>bWrite</tabstop>
   <tabstop>bExit</tabstop>
   <tabstop>bCancel</tabstop>
-  <tabstop>md5CheckBox</tabstop>
   <tabstop>bRead</tabstop>
+  <tabstop>md5CheckBox</tabstop>
  </tabstops>
  <resources>
   <include location="gui_icons.qrc"/>

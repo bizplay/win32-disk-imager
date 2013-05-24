@@ -49,6 +49,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void on_leTimeHours_textChanged();
 		void on_leTimeMinutes_textChanged();
 		void on_cbTimeZone_currentIndexChanged();
+		void on_cbWPA_WEP_currentIndexChanged();
+		void on_leCIN_textChanged();
+		void on_leChannelID_textChanged();
 		void on_tbBrowse_clicked();
 		void on_bCancel_clicked();
 		void on_bWrite_clicked();
@@ -56,7 +59,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void on_leFile_textChanged();
 		void on_leFile_editingFinished();
 		void on_md5CheckBox_stateChanged();
-		void on_cbWEP_stateChanged();
+		void on_cbWPA_WEP_stateChanged();
 		void on_cbHidden_stateChanged();
 		void on_leSSID_textChanged();
 		void on_lePassword_textChanged();
@@ -84,6 +87,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		QString urlEncode(QString leValue);
 		QString replaceSpace(QString leValue);
 		bool needsInsertion(QString leValue);
+		bool needsInsertion(QString leValue1, QString leValue2);
 		bool needsInsertion(int hours, int minutes);
 		bool needsURLInsertion(QString leValue);
 		bool configurationShouldBeWritten();

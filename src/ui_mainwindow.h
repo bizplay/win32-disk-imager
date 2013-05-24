@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri May 24 20:41:51 2013
+** Created: Fri May 24 23:02:42 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -61,7 +61,7 @@ public:
     QHBoxLayout *horizontalLayout_3;
     QLabel *lbPassword;
     QLineEdit *lePassword;
-    QCheckBox *cbWEP;
+    QComboBox *cbWPA_WEP;
     QHBoxLayout *hboxLayout1;
     QLabel *VerLabel;
     QPushButton *bCancel;
@@ -86,7 +86,9 @@ public:
     QVBoxLayout *verticalLayout_4;
     QHBoxLayout *horizontalLayout_4;
     QLabel *lbTarget;
-    QLineEdit *leTarget;
+    QLineEdit *leCIN;
+    QLabel *label_4;
+    QLineEdit *leChannelID;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -120,6 +122,7 @@ public:
 
         leTimeHours = new QLineEdit(groupBox_3);
         leTimeHours->setObjectName(QString::fromUtf8("leTimeHours"));
+        leTimeHours->setMaxLength(2);
 
         horizontalLayout_5->addWidget(leTimeHours);
 
@@ -135,6 +138,7 @@ public:
 
         leTimeMinutes = new QLineEdit(groupBox_3);
         leTimeMinutes->setObjectName(QString::fromUtf8("leTimeMinutes"));
+        leTimeMinutes->setMaxLength(2);
 
         horizontalLayout_6->addWidget(leTimeMinutes);
 
@@ -217,10 +221,10 @@ public:
 
         horizontalLayout_3->addWidget(lePassword);
 
-        cbWEP = new QCheckBox(gbWireless);
-        cbWEP->setObjectName(QString::fromUtf8("cbWEP"));
+        cbWPA_WEP = new QComboBox(gbWireless);
+        cbWPA_WEP->setObjectName(QString::fromUtf8("cbWPA_WEP"));
 
-        horizontalLayout_3->addWidget(cbWEP);
+        horizontalLayout_3->addWidget(cbWPA_WEP);
 
 
         verticalLayout_2->addLayout(horizontalLayout_3);
@@ -389,10 +393,22 @@ public:
 
         horizontalLayout_4->addWidget(lbTarget);
 
-        leTarget = new QLineEdit(gbTarget);
-        leTarget->setObjectName(QString::fromUtf8("leTarget"));
+        leCIN = new QLineEdit(gbTarget);
+        leCIN->setObjectName(QString::fromUtf8("leCIN"));
+        leCIN->setMaxLength(4);
 
-        horizontalLayout_4->addWidget(leTarget);
+        horizontalLayout_4->addWidget(leCIN);
+
+        label_4 = new QLabel(gbTarget);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+
+        horizontalLayout_4->addWidget(label_4);
+
+        leChannelID = new QLineEdit(gbTarget);
+        leChannelID->setObjectName(QString::fromUtf8("leChannelID"));
+        leChannelID->setMaxLength(6);
+
+        horizontalLayout_4->addWidget(leChannelID);
 
 
         verticalLayout_4->addLayout(horizontalLayout_4);
@@ -406,19 +422,20 @@ public:
         MainWindow->setStatusBar(statusbar);
         QWidget::setTabOrder(leFile, tbBrowse);
         QWidget::setTabOrder(tbBrowse, cboxDevice);
-        QWidget::setTabOrder(cboxDevice, leTarget);
-        QWidget::setTabOrder(leTarget, leSSID);
+        QWidget::setTabOrder(cboxDevice, leCIN);
+        QWidget::setTabOrder(leCIN, leChannelID);
+        QWidget::setTabOrder(leChannelID, leSSID);
         QWidget::setTabOrder(leSSID, cbHidden);
         QWidget::setTabOrder(cbHidden, lePassword);
-        QWidget::setTabOrder(lePassword, cbWEP);
-        QWidget::setTabOrder(cbWEP, leTimeHours);
+        QWidget::setTabOrder(lePassword, cbWPA_WEP);
+        QWidget::setTabOrder(cbWPA_WEP, leTimeHours);
         QWidget::setTabOrder(leTimeHours, leTimeMinutes);
         QWidget::setTabOrder(leTimeMinutes, cbTimeZone);
         QWidget::setTabOrder(cbTimeZone, bWrite);
         QWidget::setTabOrder(bWrite, bExit);
         QWidget::setTabOrder(bExit, bCancel);
-        QWidget::setTabOrder(bCancel, md5CheckBox);
-        QWidget::setTabOrder(md5CheckBox, bRead);
+        QWidget::setTabOrder(bCancel, bRead);
+        QWidget::setTabOrder(bRead, md5CheckBox);
 
         retranslateUi(MainWindow);
         QObject::connect(bExit, SIGNAL(clicked()), MainWindow, SLOT(close()));
@@ -439,7 +456,6 @@ public:
         lbSSID->setText(QApplication::translate("MainWindow", "SSID", 0, QApplication::UnicodeUTF8));
         cbHidden->setText(QApplication::translate("MainWindow", "Hidden", 0, QApplication::UnicodeUTF8));
         lbPassword->setText(QApplication::translate("MainWindow", "Password", 0, QApplication::UnicodeUTF8));
-        cbWEP->setText(QApplication::translate("MainWindow", "WEP", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_STATUSTIP
         bCancel->setStatusTip(QApplication::translate("MainWindow", "Cancel current process.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_STATUSTIP
@@ -468,7 +484,8 @@ public:
         md5CheckBox->setText(QString());
         md5header->setText(QApplication::translate("MainWindow", "MD5 Hash: ", 0, QApplication::UnicodeUTF8));
         gbTarget->setTitle(QApplication::translate("MainWindow", "Playback address", 0, QApplication::UnicodeUTF8));
-        lbTarget->setText(QApplication::translate("MainWindow", "URL: http://playr.biz/", 0, QApplication::UnicodeUTF8));
+        lbTarget->setText(QApplication::translate("MainWindow", "http://playr.biz/", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("MainWindow", "/", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
