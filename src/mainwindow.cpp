@@ -216,19 +216,55 @@ QVector<TimeZone> MainWindow::initTimeZones()
 }
 void MainWindow::setReadWriteButtonState()
 {
-    bool fileSelected = !(leFile->text().isEmpty());
-    bool deviceSelected = (cboxDevice->count() > 0);
-    bool timeSettingsCorrect = ( 
-        (leTimeHours->text().isEmpty() && leTimeMinutes->text().isEmpty() && cbTimeZone->currentIndex() == 0) ||
-        ( ( !(leTimeHours->text().isEmpty()) || !(leTimeMinutes->text().isEmpty()) ) && cbTimeZone->currentIndex() != 0 )
-    );
     // set read and write buttons according to status of file/device
     //bRead->setEnabled(deviceSelected && fileSelected); disable, we only want to write
     bRead->setEnabled(false);
     //bWrite->setEnabled(deviceSelected && fileSelected); enable if either a file is selected or configuration data is present
-    bWrite->setEnabled(deviceSelected && timeSettingsCorrect && (fileSelected || configurationShouldBeWritten()));
+    bWrite->setEnabled(deviceSelected() && timeSettingsCorrect() && (fileSelected() || wirelessConfigurationShouldBeWritten() || urlShouldBeWritten()));
 }
 
+bool MainWindow::fileSelected()
+{
+    return !(leFile->text().isEmpty());
+}
+bool MainWindow::deviceSelected()
+{
+    return (cboxDevice->count() > 0);
+}
+bool MainWindow::timeSettingsShouldBeWritten()
+{
+   return ( 
+     ( !(leTimeHours->text().isEmpty()) || !(leTimeMinutes->text().isEmpty()) ) 
+     && cbTimeZone->currentIndex() != 0
+    );
+ }
+bool MainWindow::timeSettingsCorrect()
+{
+   return ( 
+        (leTimeHours->text().isEmpty() && leTimeMinutes->text().isEmpty() && cbTimeZone->currentIndex() == 0) ||
+        ( ( !(leTimeHours->text().isEmpty()) || !(leTimeMinutes->text().isEmpty()) ) 
+          && cbTimeZone->currentIndex() != 0 
+        )
+    );
+ }
+bool MainWindow::urlShouldBeWritten()
+{
+    return ( !leCIN->text().isEmpty() 
+             || !leChannelID->text().isEmpty() 
+    );
+}
+bool MainWindow::wirelessConfigurationShouldBeWritten()
+{
+    return ( !leSSID->text().isEmpty() 
+             || !lePassword->text().isEmpty() 
+             || cbWPA_WEP->currentIndex() != 0 
+             || cbHidden->checkState() != Qt::Unchecked
+    );
+}
+bool MainWindow::configurationShouldBeWritten()
+{
+    return timeSettingsShouldBeWritten() || urlShouldBeWritten() || wirelessConfigurationShouldBeWritten();
+}
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (status == STATUS_READING)
@@ -680,18 +716,6 @@ bool MainWindow::needsURLInsertion(QString leValue)
     // regaxp for urls: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/ 
     // see: http://net.tutsplus.com/tutorials/other/8-regular-expressions-you-should-know/
     return !leValue.isEmpty() && (leValue.indexOf(QRegExp("^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$")) > -1);
-}
-bool MainWindow::configurationShouldBeWritten()
-{
-    bool result = false;
-    result = ( !leSSID->text().isEmpty() 
-               || !leCIN->text().isEmpty() 
-               || !leChannelID->text().isEmpty() 
-               || !lePassword->text().isEmpty() 
-               || cbWPA_WEP->currentIndex() != 0 
-               || cbHidden->checkState() != Qt::Unchecked
-             );
-    return result;
 }
 bool MainWindow::writeOSConfiguration(char * ltr)
 {

@@ -69,7 +69,13 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		// find attached devices
 		void getLogicalDrives();
 		void setReadWriteButtonState();
-
+		bool fileSelected();
+		bool deviceSelected();
+		bool timeSettingsShouldBeWritten();
+		bool timeSettingsCorrect();
+		bool urlShouldBeWritten();
+		bool wirelessConfigurationShouldBeWritten();
+		bool configurationShouldBeWritten();
 		void disableWriteAndReadButtons();
 		void disableCancelButton();
 		void setStatusIdleAndDisableCancel();
@@ -90,7 +96,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		bool needsInsertion(QString leValue1, QString leValue2);
 		bool needsInsertion(int hours, int minutes);
 		bool needsURLInsertion(QString leValue);
-		bool configurationShouldBeWritten();
 		bool writeOSConfiguration(char *ltr);
 		bool updateConfigurationFile(QString configFileName);
 		void setParameter(QStringList &parameters, QString key, QString value);
