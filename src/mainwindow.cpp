@@ -766,7 +766,7 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     }
     QString newURL;
     bool replaceURL = needsInsertion(leCIN->text(), leChannelID->text());
-    if (replaceURL) newURL = QString("http://playr.com/") + leCIN->text() + QString("/") + leChannelID->text();
+    if (replaceURL) newURL = QString("http://playr.biz/") + leCIN->text() + QString("/") + leChannelID->text();
     int hours = toInt(leTimeHours->text());
     int minutes = toInt(leTimeMinutes->text());
     bool insertCron = needsInsertion(hours, minutes);
