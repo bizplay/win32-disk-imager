@@ -1,6 +1,6 @@
 Image Writer for Microsoft Windows
 Release 0.7 - Sourceforge Edition
-Extended by Bizplay.com
+Extended and renamed (in an attempt to make it less intimidating to non technical users) by Bizplay.com
 
 ======
 About:

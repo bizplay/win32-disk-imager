@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri May 24 23:02:42 2013
+** Created: Tue Jul 16 11:42:51 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -445,7 +445,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "Win32 Disk Imager", 0, QApplication::UnicodeUTF8));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "PlugNPlayr", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "Shutdown time", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("MainWindow", "Hours (0..23)", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("MainWindow", "Minutes (00..59)", 0, QApplication::UnicodeUTF8));

@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = ../../Win32DiskImager
+TARGET = ../../PlugNPlayr
 DEPENDPATH += .
 INCLUDEPATH += .
 CONFIG += release
@@ -8,7 +8,7 @@ DEFINES -= UNICODE
 VERSION = 0.7
 VERSTR = '\\"$${VERSION}\\"'
 DEFINES += VER=\"$${VERSTR}\"
-QMAKE_TARGET_PRODUCT = "Win32 Image Writer"
+QMAKE_TARGET_PRODUCT = "PlugNPlayr"
 QMAKE_TARGET_DESCRIPTION = "Image Writer for Windows to write USB and SD images"
 QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2009-2013 Windows ImageWriter Team"
 

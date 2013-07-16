@@ -14,7 +14,7 @@
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>Win32 Disk Imager</string>
+   <string>PlugNPlayr</string>
   </property>
   <property name="windowIcon">
    <iconset resource="gui_icons.qrc">
