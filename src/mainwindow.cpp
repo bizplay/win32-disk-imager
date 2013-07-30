@@ -86,8 +86,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         cbTimeZone->addItem(allTimeZones[i].description, QVariant(i));
 
     // init WPA WEP drop box
-    cbWPA_WEP->addItem(QString("WPA/WPA2"),QVariant(0));
-    cbWPA_WEP->addItem(QString("WEP"),QVariant(1));
+    cbWPA_WEP->addItem(QString("WPA/WPA2"), QVariant(0));
+    cbWPA_WEP->addItem(QString("WEP"), QVariant(1));
+
+    // init resolution drop box
+    cbResolution->addItem(QString("Default"), QVariant(0));
+    cbResolution->addItem(QString("1080p (1920x1080)"), QVariant(1));
+    cbResolution->addItem(QString("720p (1280x720)"), QVariant(2));
 
     // make md5 fields invisible, they might confuse our users
     md5CheckBox->setVisible(false);
@@ -253,6 +258,18 @@ bool MainWindow::urlShouldBeWritten()
              || !leChannelID->text().isEmpty() 
     );
 }
+bool MainWindow::isWPASelected()
+{
+    return (cbWPA_WEP->currentIndex() == 0);
+}
+bool MainWindow::resolutionShouldBeWritten()
+{
+    return cbResolution->currentIndex() != 0;
+}
+int MainWindow::resolutionValue()
+{
+    return cbResolution->currentIndex();
+}
 bool MainWindow::wirelessConfigurationShouldBeWritten()
 {
     return ( !leSSID->text().isEmpty() 
@@ -294,6 +311,10 @@ void MainWindow::on_cbTimeZone_currentIndexChanged()
     setReadWriteButtonState();
 }
 void MainWindow::on_cbWPA_WEP_currentIndexChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::on_cbResolution_currentIndexChanged()
 {
     setReadWriteButtonState();
 }
@@ -438,10 +459,6 @@ void MainWindow::on_md5CheckBox_stateChanged()
         // changed from checked to unchecked
         md5label->clear();
     }
-}
-void MainWindow::on_cbWPA_WEP_stateChanged()
-{
-    setReadWriteButtonState();
 }
 void MainWindow::on_cbHidden_stateChanged()
 {
@@ -794,6 +811,8 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     int hours = toInt(leTimeHours->text());
     int minutes = toInt(leTimeMinutes->text());
     bool insertCron = needsInsertion(hours, minutes);
+    bool insertResolution = resolutionShouldBeWritten();
+    int resolution = resolutionValue();
 
     // open the config file and a temporary new config file
     QString tmpConfigFileName = configFileName + QString(".tmp");
@@ -817,7 +836,8 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
             line = indentation + setParameters(line, insertSSID, SSID, 
                                                insertPassword, password, 
                                                replaceURL, newURL,
-                                               insertCron, hours, minutes, myTimeZone);
+                                               insertCron, hours, minutes, myTimeZone,
+                                               insertResolution, resolution);
         }
         outStream << line << endl;
     }
@@ -850,7 +870,8 @@ QString MainWindow::setParameters(QString line,
                                   bool insertSSID, QString SSID, 
                                   bool insertPassword, QString password, 
                                   bool replaceURL, QString newURL,
-                                  bool insertCron, int hours, int minutes, QString timeZone)
+                                  bool insertCron, int hours, int minutes, QString timeZone,
+                                  bool insertResolution, int resolution)
 {
     QStringList items = trimList(line.split(" "));
     QStringList parameters = items.filter(QRegExp("\\S+"));
@@ -858,6 +879,7 @@ QString MainWindow::setParameters(QString line,
     setPasswordParameter(parameters, insertPassword, password);
     setURLParameter(parameters, replaceURL, newURL);
     setCronParameter(parameters, insertCron, hours, minutes, timeZone);
+    setResolutionParameter(parameters, insertResolution, resolution);
     QStringList nonEmptyParameters = parameters.filter(QRegExp("\\S+"));
     return nonEmptyParameters.join(QString(" "));
 }
@@ -907,7 +929,7 @@ void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPasswo
         }
         if (!password.isEmpty())
         {
-            if (cbWPA_WEP->currentIndex() == 0) 
+            if (isWPASelected()) 
             {
                 // remove WEP key
                 removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
@@ -961,12 +983,7 @@ void MainWindow::setCronParameter(QStringList &parameters, bool insertCron, int 
     if (insertCron)
     {
         setParameter(parameters, QString("timezone"), timeZone);
-        setParameter(parameters, QString("cron"), (minutes >= 0 && minutes < 10 ? QString("0") : QString("")) 
-                                                  + QString::number(((minutes < 0) || (minutes > 59)) ? 00 : minutes) 
-                                                  + QString("%20") 
-                                                  + (hours >= 0 && hours < 10 ? QString("0") : QString(""))
-                                                  + QString::number(((hours < 0) || (hours > 23)) ? 00 : hours)
-                                                  + QString("%20*%20*%20*%20root%20poweroff"));
+        setParameter(parameters, QString("cron"), cronString(hours, minutes));
     }
     else
     {
@@ -974,6 +991,39 @@ void MainWindow::setCronParameter(QStringList &parameters, bool insertCron, int 
         removeParameter(parameters, QString("timezone=\\S*"));
         removeParameter(parameters, QString("cron=\\S*"));
     }
+}
+QString MainWindow::cronString(int hours, int minutes)
+{
+    QString result = replaceSpace( (minutes >= 0 && minutes < 10 ? QString("0") : QString("")) 
+                                      + QString::number(((minutes < 0) || (minutes > 59)) ? 00 : minutes) 
+                                      + QString(" ") 
+                                      + (hours >= 0 && hours < 10 ? QString("0") : QString(""))
+                                      + QString::number(((hours < 0) || (hours > 23)) ? 00 : hours)
+                                      + QString(" * * * root poweroff")
+                      );
+    return result;
+}
+void MainWindow::setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution)
+{
+    if (insertResolution)
+    {
+        setParameter(parameters, QString("xrandr"), resolutionString(resolution));
+    }
+    else
+    {
+        // remove Cron parameters
+        removeParameter(parameters, QString("xrandr=\\S*"));
+    }
+}
+QString MainWindow::resolutionString(int resolution)
+{
+    QString result = QString("");
+    if (resolution == 1 || resolution == 2)
+    {
+        result = QString("-s%20") + (resolution == 1 ? QString("1920x1080") : QString("1280x720"));
+
+    }
+    return result;
 }
 void MainWindow::on_bRead_clicked()
 {

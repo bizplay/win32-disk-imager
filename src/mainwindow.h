@@ -50,6 +50,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void on_leTimeMinutes_textChanged();
 		void on_cbTimeZone_currentIndexChanged();
 		void on_cbWPA_WEP_currentIndexChanged();
+		void on_cbResolution_currentIndexChanged();
 		void on_leCIN_textChanged();
 		void on_leChannelID_textChanged();
 		void on_tbBrowse_clicked();
@@ -59,7 +60,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void on_leFile_textChanged();
 		void on_leFile_editingFinished();
 		void on_md5CheckBox_stateChanged();
-		void on_cbWPA_WEP_stateChanged();
 		void on_cbHidden_stateChanged();
 		void on_leSSID_textChanged();
 		void on_lePassword_textChanged();
@@ -74,6 +74,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		bool timeSettingsShouldBeWritten();
 		bool timeSettingsCorrect();
 		bool urlShouldBeWritten();
+		bool isWPASelected();
+		bool resolutionShouldBeWritten();
+		int resolutionValue();
 		bool wirelessConfigurationShouldBeWritten();
 		bool configurationShouldBeWritten();
 		void disableWriteAndReadButtons();
@@ -102,15 +105,19 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		QStringList trimList(QStringList list);
 		void removeParameter(QStringList &parameters, QString keyAndValue);
 		QString setParameters(QString line, 
-                              bool insertSSID, QString SSID, 
-                              bool insertPassword, QString password, 
-                              bool replaceURL, QString newURL,
-                              bool insertCron, int hours, int minutes, QString timeZone);
+                                  bool insertSSID, QString SSID, 
+                                  bool insertPassword, QString password, 
+                                  bool replaceURL, QString newURL,
+                                  bool insertCron, int hours, int minutes, QString timeZone,
+                                  bool insertResolution, int resolution);
 		void setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID);
 		void setPasswordParameter(QStringList &parameters, bool insertPassword, QString password);
 		void setURLParameter(QStringList &parameters, bool replaceURL, QString newURL);
 		int toInt(QString minuteString);
 		void setCronParameter(QStringList &parameters, bool insertCron, int hours, int minutes, QString timeZone);
+		QString cronString(int hours, int minutes);
+		void setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution);
+		QString resolutionString(int resolution);
 
 		HANDLE hVolume;
 		HANDLE hFile;

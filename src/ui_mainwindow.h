@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Tue Jul 16 11:42:51 2013
+** Created: Tue Jul 30 13:31:25 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -62,6 +62,13 @@ public:
     QLabel *lbPassword;
     QLineEdit *lePassword;
     QComboBox *cbWPA_WEP;
+    QGroupBox *gbTarget;
+    QVBoxLayout *verticalLayout_4;
+    QHBoxLayout *horizontalLayout_4;
+    QLabel *lbTarget;
+    QLineEdit *leCIN;
+    QLabel *label_4;
+    QLineEdit *leChannelID;
     QHBoxLayout *hboxLayout1;
     QLabel *VerLabel;
     QPushButton *bCancel;
@@ -82,20 +89,18 @@ public:
     QCheckBox *md5CheckBox;
     QLabel *md5header;
     QLabel *md5label;
-    QGroupBox *gbTarget;
-    QVBoxLayout *verticalLayout_4;
-    QHBoxLayout *horizontalLayout_4;
-    QLabel *lbTarget;
-    QLineEdit *leCIN;
-    QLabel *label_4;
-    QLineEdit *leChannelID;
+    QGroupBox *groupBox_4;
+    QVBoxLayout *verticalLayout_5;
+    QHBoxLayout *horizontalLayout_8;
+    QLabel *lbResolution;
+    QComboBox *cbResolution;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(355, 452);
+        MainWindow->resize(355, 513);
         MainWindow->setAcceptDrops(true);
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/images/images/Win32DiskImager.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -161,7 +166,7 @@ public:
         gridLayout_2->addLayout(horizontalLayout_7, 1, 0, 1, 2);
 
 
-        gridLayout->addWidget(groupBox_3, 4, 0, 1, 1);
+        gridLayout->addWidget(groupBox_3, 5, 0, 1, 1);
 
         groupBox_5 = new QGroupBox(centralwidget);
         groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
@@ -181,7 +186,7 @@ public:
         hboxLayout->addWidget(progressbar);
 
 
-        gridLayout->addWidget(groupBox_5, 6, 0, 1, 1);
+        gridLayout->addWidget(groupBox_5, 7, 0, 1, 1);
 
         gbWireless = new QGroupBox(centralwidget);
         gbWireless->setObjectName(QString::fromUtf8("gbWireless"));
@@ -233,7 +238,41 @@ public:
         verticalLayout_3->addLayout(verticalLayout_2);
 
 
-        gridLayout->addWidget(gbWireless, 3, 0, 1, 1);
+        gridLayout->addWidget(gbWireless, 4, 0, 1, 1);
+
+        gbTarget = new QGroupBox(centralwidget);
+        gbTarget->setObjectName(QString::fromUtf8("gbTarget"));
+        verticalLayout_4 = new QVBoxLayout(gbTarget);
+        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        lbTarget = new QLabel(gbTarget);
+        lbTarget->setObjectName(QString::fromUtf8("lbTarget"));
+
+        horizontalLayout_4->addWidget(lbTarget);
+
+        leCIN = new QLineEdit(gbTarget);
+        leCIN->setObjectName(QString::fromUtf8("leCIN"));
+        leCIN->setMaxLength(4);
+
+        horizontalLayout_4->addWidget(leCIN);
+
+        label_4 = new QLabel(gbTarget);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+
+        horizontalLayout_4->addWidget(label_4);
+
+        leChannelID = new QLineEdit(gbTarget);
+        leChannelID->setObjectName(QString::fromUtf8("leChannelID"));
+        leChannelID->setMaxLength(6);
+
+        horizontalLayout_4->addWidget(leChannelID);
+
+
+        verticalLayout_4->addLayout(horizontalLayout_4);
+
+
+        gridLayout->addWidget(gbTarget, 2, 0, 1, 1);
 
         hboxLayout1 = new QHBoxLayout();
         hboxLayout1->setObjectName(QString::fromUtf8("hboxLayout1"));
@@ -278,7 +317,7 @@ public:
         hboxLayout1->addWidget(bExit);
 
 
-        gridLayout->addLayout(hboxLayout1, 7, 0, 1, 1);
+        gridLayout->addLayout(hboxLayout1, 8, 0, 1, 1);
 
         hboxLayout2 = new QHBoxLayout();
         hboxLayout2->setObjectName(QString::fromUtf8("hboxLayout2"));
@@ -382,39 +421,27 @@ public:
 
         gridLayout->addLayout(hboxLayout5, 1, 0, 1, 1);
 
-        gbTarget = new QGroupBox(centralwidget);
-        gbTarget->setObjectName(QString::fromUtf8("gbTarget"));
-        verticalLayout_4 = new QVBoxLayout(gbTarget);
-        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-        horizontalLayout_4 = new QHBoxLayout();
-        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
-        lbTarget = new QLabel(gbTarget);
-        lbTarget->setObjectName(QString::fromUtf8("lbTarget"));
+        groupBox_4 = new QGroupBox(centralwidget);
+        groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
+        verticalLayout_5 = new QVBoxLayout(groupBox_4);
+        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
+        horizontalLayout_8 = new QHBoxLayout();
+        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
+        lbResolution = new QLabel(groupBox_4);
+        lbResolution->setObjectName(QString::fromUtf8("lbResolution"));
 
-        horizontalLayout_4->addWidget(lbTarget);
+        horizontalLayout_8->addWidget(lbResolution);
 
-        leCIN = new QLineEdit(gbTarget);
-        leCIN->setObjectName(QString::fromUtf8("leCIN"));
-        leCIN->setMaxLength(4);
+        cbResolution = new QComboBox(groupBox_4);
+        cbResolution->setObjectName(QString::fromUtf8("cbResolution"));
 
-        horizontalLayout_4->addWidget(leCIN);
-
-        label_4 = new QLabel(gbTarget);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
-
-        horizontalLayout_4->addWidget(label_4);
-
-        leChannelID = new QLineEdit(gbTarget);
-        leChannelID->setObjectName(QString::fromUtf8("leChannelID"));
-        leChannelID->setMaxLength(6);
-
-        horizontalLayout_4->addWidget(leChannelID);
+        horizontalLayout_8->addWidget(cbResolution);
 
 
-        verticalLayout_4->addLayout(horizontalLayout_4);
+        verticalLayout_5->addLayout(horizontalLayout_8);
 
 
-        gridLayout->addWidget(gbTarget, 2, 0, 1, 1);
+        gridLayout->addWidget(groupBox_4, 3, 0, 1, 1);
 
         MainWindow->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(MainWindow);
@@ -456,6 +483,9 @@ public:
         lbSSID->setText(QApplication::translate("MainWindow", "SSID", 0, QApplication::UnicodeUTF8));
         cbHidden->setText(QApplication::translate("MainWindow", "Hidden", 0, QApplication::UnicodeUTF8));
         lbPassword->setText(QApplication::translate("MainWindow", "Password", 0, QApplication::UnicodeUTF8));
+        gbTarget->setTitle(QApplication::translate("MainWindow", "Playback address", 0, QApplication::UnicodeUTF8));
+        lbTarget->setText(QApplication::translate("MainWindow", "http://playr.biz/", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("MainWindow", "/", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_STATUSTIP
         bCancel->setStatusTip(QApplication::translate("MainWindow", "Cancel current process.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_STATUSTIP
@@ -483,9 +513,8 @@ public:
 #endif // QT_NO_TOOLTIP
         md5CheckBox->setText(QString());
         md5header->setText(QApplication::translate("MainWindow", "MD5 Hash: ", 0, QApplication::UnicodeUTF8));
-        gbTarget->setTitle(QApplication::translate("MainWindow", "Playback address", 0, QApplication::UnicodeUTF8));
-        lbTarget->setText(QApplication::translate("MainWindow", "http://playr.biz/", 0, QApplication::UnicodeUTF8));
-        label_4->setText(QApplication::translate("MainWindow", "/", 0, QApplication::UnicodeUTF8));
+        groupBox_4->setTitle(QApplication::translate("MainWindow", "Resolution", 0, QApplication::UnicodeUTF8));
+        lbResolution->setText(QApplication::translate("MainWindow", "Screen resolution", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
