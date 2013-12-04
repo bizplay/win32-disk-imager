@@ -65,6 +65,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     sectorData = NULL;
     sectorsize = 0ul;
 
+    appendKeepKey = QString("append_keep");
+    baseURL = QString("http://playr.biz/");
+    channelPlaybackUrlPart = QString("/");
+    playerRedirectUrlPart = QString("/pr/");
+
     myHomeDir = QDir::homePath();
     if (myHomeDir == NULL){
         myHomeDir = qgetenv("USERPROFILE");
@@ -252,6 +257,21 @@ bool MainWindow::timeSettingsCorrect()
         )
     );
  }
+bool MainWindow::isCINCorrect()
+{
+    QString CIN = leCIN->text(); 
+    return ((CIN.length() == 4) && QRegExp("\\d*").exactMatch(CIN));
+}
+bool MainWindow::isRightUrlPartCorrect()
+{
+    QString channelID = leChannelID->text();
+    return (cbEnterprise->isChecked() && channelID.length() == 6 && QRegExp("[\\da-zA-Z]*").exactMatch(channelID)) 
+            || (!cbEnterprise->isChecked() && QRegExp("\\d*").exactMatch(channelID));
+}
+bool MainWindow::isURLCorrect()
+{
+    return isCINCorrect() && isRightUrlPartCorrect();
+}
 bool MainWindow::urlShouldBeWritten()
 {
     return ( !leCIN->text().isEmpty() 
@@ -460,6 +480,18 @@ void MainWindow::on_md5CheckBox_stateChanged()
         md5label->clear();
     }
 }
+void MainWindow::on_cbEnterprise_stateChanged()
+{
+    if(cbEnterprise->isChecked())
+    {
+        lbMiddleOfURL->setText(playerRedirectUrlPart);
+    }
+    else
+    {
+        lbMiddleOfURL->setText(channelPlaybackUrlPart);
+    }
+    setReadWriteButtonState();
+}
 void MainWindow::on_cbHidden_stateChanged()
 {
     setReadWriteButtonState();
@@ -537,6 +569,20 @@ void MainWindow::deleteDataIdleStatusRemoveLockAndCloseVolumeHandles()
 void MainWindow::on_bWrite_clicked()
 {
     bool passfail = true;
+
+    if (!isURLCorrect())
+    {
+        if (cbEnterprise->isChecked())
+        {
+            QMessageBox::critical(NULL, tr("URL Error"), tr("The URL is incorrect; the first part should consists of 4 numbers, the second part should consist of 6 letters and numbers."));
+        }
+        else
+        {
+            QMessageBox::critical(NULL, tr("URL Error"), tr("The URL is incorrect; the first part should consists of 4 numbers, the second part should consist of numbers."));
+        }
+        return;
+    }
+
     // build the drive letter as a const char *
     //   (without the surrounding brackets)
     QString qs = cboxDevice->currentText();
@@ -689,10 +735,17 @@ void MainWindow::on_bWrite_clicked()
      */
     if (configurationShouldBeWritten())
     {
-        passfail = writeOSConfiguration(ltr);
         if (passfail) 
         {
-            QMessageBox::information(NULL, tr("Complete"), tr("Writing configuration data successful."));
+            passfail = writeOSConfiguration(ltr);
+            if (passfail) 
+            {
+                QMessageBox::information(NULL, tr("Complete"), tr("Writing configuration data successful."));
+            }
+        }
+        else
+        {
+            QMessageBox::critical(NULL, tr("Error"), tr("Configuration data not written because of previously occurred error(s)."));
         }
     }
     if (status == STATUS_EXIT)
@@ -792,7 +845,8 @@ bool MainWindow::writeOSConfiguration(char * ltr)
 bool MainWindow::updateConfigurationFile(QString configFileName)
 {
     bool result = true;
-    QString configLineToEditIndicator = QString("append");
+    QRegExp configLineToEditIndicator = QRegExp("^\\s*[Aa][Pp][Pp][Ee][Nn][Dd]");
+    QRegExp configLineInstallSectionIndicator = QRegExp("^\\s*[Ll][Aa][Bb][Ee][Ll]\\s*[Ii][Nn][Ss][Tt][Aa][Ll][Ll]\\s*$");
     status = STATUS_WRITING;
     disableWriteAndReadButtons();
 
@@ -807,12 +861,13 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     }
     QString newURL;
     bool replaceURL = needsInsertion(leCIN->text(), leChannelID->text());
-    if (replaceURL) newURL = QString("http://playr.biz/") + leCIN->text() + QString("/") + leChannelID->text();
+    if (replaceURL) newURL = createURL();
     int hours = toInt(leTimeHours->text());
     int minutes = toInt(leTimeMinutes->text());
     bool insertCron = needsInsertion(hours, minutes);
     bool insertResolution = resolutionShouldBeWritten();
     int resolution = resolutionValue();
+    bool inInstallSection = false;
 
     // open the config file and a temporary new config file
     QString tmpConfigFileName = configFileName + QString(".tmp");
@@ -829,6 +884,10 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     while (!inStream.atEnd()) 
     {
         QString line = inStream.readLine();
+        if (line.indexOf(configLineInstallSectionIndicator) > -1)
+        {
+            inInstallSection = true;
+        }
         if (line.indexOf(configLineToEditIndicator) > -1)
         {
             // save indentation sincesetParameters returns the bare combined parameter string
@@ -837,7 +896,9 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
                                                insertPassword, password, 
                                                replaceURL, newURL,
                                                insertCron, hours, minutes, myTimeZone,
-                                               insertResolution, resolution);
+                                               insertResolution, resolution,
+                                               inInstallSection);
+            inInstallSection = false;
         }
         outStream << line << endl;
     }
@@ -848,40 +909,86 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     outFile.rename(configFileName);
     return result;
 }
-void MainWindow::setParameter(QStringList &parameters, QString key, QString value)
+QString MainWindow::createURL()
 {
-    if (parameters.indexOf(QRegExp(key + QString("=\\S*"))) > -1)
+    QString result = QString("");
+    if (cbEnterprise->isChecked())
     {
-        parameters.replaceInStrings(QRegExp(key + QString("=\\S*")), QString(key + QString("=") + value));
+        result = baseURL + leCIN->text() + playerRedirectUrlPart + leChannelID->text();
     }
     else
     {
-        parameters << QString(key + QString("=") + value);
+        result = baseURL + leCIN->text() + channelPlaybackUrlPart + leChannelID->text();
     }
-}
-void MainWindow::removeParameter(QStringList &parameters, QString keyAndValue)
-{
-    if (parameters.indexOf(QRegExp(keyAndValue)) > -1)
-    {
-        parameters.replaceInStrings(QRegExp(keyAndValue), QString(""));
-    }
+    return result;
 }
 QString MainWindow::setParameters(QString line, 
                                   bool insertSSID, QString SSID, 
                                   bool insertPassword, QString password, 
                                   bool replaceURL, QString newURL,
                                   bool insertCron, int hours, int minutes, QString timeZone,
-                                  bool insertResolution, int resolution)
+                                  bool insertResolution, int resolution,
+                                  bool keepParameter)
 {
     QStringList items = trimList(line.split(" "));
     QStringList parameters = items.filter(QRegExp("\\S+"));
-    setSSIDParameter(parameters, insertSSID, SSID);
-    setPasswordParameter(parameters, insertPassword, password);
-    setURLParameter(parameters, replaceURL, newURL);
-    setCronParameter(parameters, insertCron, hours, minutes, timeZone);
-    setResolutionParameter(parameters, insertResolution, resolution);
+    setSSIDParameter(parameters, insertSSID, SSID, keepParameter);
+    setPasswordParameter(parameters, insertPassword, password, keepParameter);
+    setURLParameter(parameters, replaceURL, newURL, keepParameter);
+    setCronParameter(parameters, insertCron, hours, minutes, timeZone, keepParameter);
+    setResolutionParameter(parameters, insertResolution, resolution, keepParameter);
     QStringList nonEmptyParameters = parameters.filter(QRegExp("\\S+"));
     return nonEmptyParameters.join(QString(" "));
+}
+void MainWindow::setParameter(QStringList &parameters, QString key, QString value, bool keepParameter)
+{
+    setBaseParameter(parameters, key, value);
+    if (keepParameter) setKeepParameter(parameters, key, value);
+}
+void MainWindow::setBaseParameter(QStringList &parameters, QString key, QString value)
+{
+    QRegExp toMatch = QRegExp(key + QString("=\\S*"));
+    QString keyEquals = QString(key + QString("="));
+    if (parameters.indexOf(toMatch) > -1)
+    {
+        parameters.replaceInStrings(toMatch, keyEquals + value);
+    }
+    else
+    {
+        parameters << QString(keyEquals + value);
+    }
+}
+void MainWindow::setKeepParameter(QStringList &parameters, QString key, QString value)
+{
+    QRegExp toMatch = QRegExp(appendKeepKey + QString("=") + key + QString("=\\S*"));
+    QString keyEquals = QString(appendKeepKey + QString("=") + key + QString("="));
+    if (parameters.indexOf(toMatch) > -1)
+    {
+        parameters.replaceInStrings(toMatch, keyEquals + value);
+    }
+    else
+    {
+        parameters << QString(keyEquals + value);
+    }
+}
+void MainWindow::removeParameter(QStringList &parameters, QString keyAndValue)
+{
+    removeKeepParameter(parameters, keyAndValue);
+    removeBaseParameter(parameters, keyAndValue);
+}
+void MainWindow::removeBaseParameter(QStringList &parameters, QString keyAndValue)
+{
+    if (parameters.indexOf(QRegExp(keyAndValue)) > -1)
+    {
+        parameters.replaceInStrings(QRegExp(keyAndValue), QString(""));
+    }
+}
+void MainWindow::removeKeepParameter(QStringList &parameters, QString keyAndValue)
+{
+    if (parameters.indexOf(QRegExp(appendKeepKey + QString("=") + keyAndValue)) > -1)
+    {
+        parameters.replaceInStrings(QRegExp(appendKeepKey + QString("=") + keyAndValue), QString(""));
+    }
 }
 int MainWindow::toInt(QString string)
 {
@@ -900,18 +1007,18 @@ QStringList MainWindow::trimList(QStringList list)
     }
     return result;
 }
-void MainWindow::setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID)
+void MainWindow::setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID, bool keepParameter)
 {
     if (insertSSID)
     {
-        setParameter(parameters, QString("wpa-ssid"), SSID);
+        setParameter(parameters, QString("wpa-ssid"), SSID, keepParameter);
     }
     else 
     {
         removeParameter(parameters, QString("wpa-ssid=\\S*"));
     }
 }
-void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPassword, QString password)
+void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPassword, QString password, bool keepParameter)
 {    
     if (insertPassword)
     {
@@ -924,8 +1031,8 @@ void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPasswo
         else
         {
             // replace with correct setting
-            setParameter(parameters, QString("wpa-ap-scan"), QString("1"));
-            setParameter(parameters, QString("wpa-scan-ssid"), QString("1"));
+            setParameter(parameters, QString("wpa-ap-scan"), QString("1"), keepParameter);
+            setParameter(parameters, QString("wpa-scan-ssid"), QString("1"), keepParameter);
         }
         if (!password.isEmpty())
         {
@@ -935,7 +1042,7 @@ void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPasswo
                 removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
                 removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
                 // add WPA key
-                setParameter(parameters, QString("wpa-psk"), password);
+                setParameter(parameters, QString("wpa-psk"), password, keepParameter);
             }
             else
             {
@@ -944,7 +1051,7 @@ void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPasswo
                 removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
                 // add WPA key
                 // setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"));
-                setParameter(parameters, QString("wpa-wep-key0"), password);
+                setParameter(parameters, QString("wpa-wep-key0"), password, keepParameter);
             }
         }
         else
@@ -953,7 +1060,7 @@ void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPasswo
             removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
             removeParameter(parameters, QString("wpa-psk=\\S*"));
             // add setting indocating there is no security
-            setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"));
+            setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"), keepParameter);
         }
     }
     else
@@ -965,25 +1072,25 @@ void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPasswo
         removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
     }
 }
-void MainWindow::setURLParameter(QStringList &parameters, bool replaceURL, QString newURL)
+void MainWindow::setURLParameter(QStringList &parameters, bool replaceURL, QString newURL, bool keepParameter)
 {
     QString currentURL = QString("http://playr.biz/2400/74");
 
     if (replaceURL)
     {
-        setParameter(parameters, QString("homepage"), newURL);
+        setParameter(parameters, QString("homepage"), newURL, keepParameter);
     }
     else
     {
-        setParameter(parameters, QString("homepage"), currentURL);
+        setParameter(parameters, QString("homepage"), currentURL, keepParameter);
     }
 }
-void MainWindow::setCronParameter(QStringList &parameters, bool insertCron, int hours, int minutes, QString timeZone)
+void MainWindow::setCronParameter(QStringList &parameters, bool insertCron, int hours, int minutes, QString timeZone, bool keepParameter)
 {
     if (insertCron)
     {
-        setParameter(parameters, QString("timezone"), timeZone);
-        setParameter(parameters, QString("cron"), cronString(hours, minutes));
+        setParameter(parameters, QString("timezone"), timeZone, keepParameter);
+        setParameter(parameters, QString("cron"), cronString(hours, minutes), keepParameter);
     }
     else
     {
@@ -1003,11 +1110,11 @@ QString MainWindow::cronString(int hours, int minutes)
                       );
     return result;
 }
-void MainWindow::setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution)
+void MainWindow::setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution, bool keepParameter)
 {
     if (insertResolution)
     {
-        setParameter(parameters, QString("xrandr"), resolutionString(resolution));
+        setParameter(parameters, QString("xrandr"), resolutionString(resolution), keepParameter);
     }
     else
     {

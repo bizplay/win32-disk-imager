@@ -60,6 +60,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void on_leFile_textChanged();
 		void on_leFile_editingFinished();
 		void on_md5CheckBox_stateChanged();
+		void on_cbEnterprise_stateChanged();
 		void on_cbHidden_stateChanged();
 		void on_leSSID_textChanged();
 		void on_lePassword_textChanged();
@@ -73,6 +74,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		bool deviceSelected();
 		bool timeSettingsShouldBeWritten();
 		bool timeSettingsCorrect();
+		bool isCINCorrect();
+		bool isRightUrlPartCorrect();
+		bool isURLCorrect();
 		bool urlShouldBeWritten();
 		bool isWPASelected();
 		bool resolutionShouldBeWritten();
@@ -101,22 +105,28 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		bool needsURLInsertion(QString leValue);
 		bool writeOSConfiguration(char *ltr);
 		bool updateConfigurationFile(QString configFileName);
-		void setParameter(QStringList &parameters, QString key, QString value);
+		QString createURL();
+		void setParameter(QStringList &parameters, QString key, QString value, bool keepParameter);
+		void setBaseParameter(QStringList &parameters, QString key, QString value);
+		void setKeepParameter(QStringList &parameters, QString key, QString value);
 		QStringList trimList(QStringList list);
 		void removeParameter(QStringList &parameters, QString keyAndValue);
+		void removeBaseParameter(QStringList &parameters, QString keyAndValue);
+		void removeKeepParameter(QStringList &parameters, QString keyAndValue);
 		QString setParameters(QString line, 
                                   bool insertSSID, QString SSID, 
                                   bool insertPassword, QString password, 
                                   bool replaceURL, QString newURL,
                                   bool insertCron, int hours, int minutes, QString timeZone,
-                                  bool insertResolution, int resolution);
-		void setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID);
-		void setPasswordParameter(QStringList &parameters, bool insertPassword, QString password);
-		void setURLParameter(QStringList &parameters, bool replaceURL, QString newURL);
+                                  bool insertResolution, int resolution,
+                                  bool keepParameters);
+		void setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID, bool keepParameter);
+		void setPasswordParameter(QStringList &parameters, bool insertPassword, QString password, bool keepParameter);
+		void setURLParameter(QStringList &parameters, bool replaceURL, QString newURL, bool keepParameter);
 		int toInt(QString minuteString);
-		void setCronParameter(QStringList &parameters, bool insertCron, int hours, int minutes, QString timeZone);
+		void setCronParameter(QStringList &parameters, bool insertCron, int hours, int minutes, QString timeZone, bool keepParameter);
 		QString cronString(int hours, int minutes);
-		void setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution);
+		void setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution, bool keepParameter);
 		QString resolutionString(int resolution);
 
 		HANDLE hVolume;
@@ -131,6 +141,10 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         QString myHomeDir;
         QVector<TimeZone> allTimeZones;
         QString myTimeZone;
+		QString appendKeepKey;
+		QString baseURL;
+		QString channelPlaybackUrlPart;
+		QString playerRedirectUrlPart;
 };
 
 #endif // MAINWINDOW_H

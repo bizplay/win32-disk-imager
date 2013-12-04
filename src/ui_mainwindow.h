@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Tue Jul 30 13:31:25 2013
+** Created: Fri Nov 29 21:16:02 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -64,10 +64,11 @@ public:
     QComboBox *cbWPA_WEP;
     QGroupBox *gbTarget;
     QVBoxLayout *verticalLayout_4;
+    QCheckBox *cbEnterprise;
     QHBoxLayout *horizontalLayout_4;
     QLabel *lbTarget;
     QLineEdit *leCIN;
-    QLabel *label_4;
+    QLabel *lbMiddleOfURL;
     QLineEdit *leChannelID;
     QHBoxLayout *hboxLayout1;
     QLabel *VerLabel;
@@ -100,7 +101,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(355, 513);
+        MainWindow->resize(355, 534);
         MainWindow->setAcceptDrops(true);
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/images/images/Win32DiskImager.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -244,6 +245,11 @@ public:
         gbTarget->setObjectName(QString::fromUtf8("gbTarget"));
         verticalLayout_4 = new QVBoxLayout(gbTarget);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        cbEnterprise = new QCheckBox(gbTarget);
+        cbEnterprise->setObjectName(QString::fromUtf8("cbEnterprise"));
+
+        verticalLayout_4->addWidget(cbEnterprise);
+
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
         lbTarget = new QLabel(gbTarget);
@@ -257,10 +263,10 @@ public:
 
         horizontalLayout_4->addWidget(leCIN);
 
-        label_4 = new QLabel(gbTarget);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
+        lbMiddleOfURL = new QLabel(gbTarget);
+        lbMiddleOfURL->setObjectName(QString::fromUtf8("lbMiddleOfURL"));
 
-        horizontalLayout_4->addWidget(label_4);
+        horizontalLayout_4->addWidget(lbMiddleOfURL);
 
         leChannelID = new QLineEdit(gbTarget);
         leChannelID->setObjectName(QString::fromUtf8("leChannelID"));
@@ -447,11 +453,12 @@ public:
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         MainWindow->setStatusBar(statusbar);
-        QWidget::setTabOrder(leFile, tbBrowse);
         QWidget::setTabOrder(tbBrowse, cboxDevice);
         QWidget::setTabOrder(cboxDevice, leCIN);
         QWidget::setTabOrder(leCIN, leChannelID);
-        QWidget::setTabOrder(leChannelID, leSSID);
+        QWidget::setTabOrder(leChannelID, bCancel);
+        QWidget::setTabOrder(bCancel, cbResolution);
+        QWidget::setTabOrder(cbResolution, leSSID);
         QWidget::setTabOrder(leSSID, cbHidden);
         QWidget::setTabOrder(cbHidden, lePassword);
         QWidget::setTabOrder(lePassword, cbWPA_WEP);
@@ -460,9 +467,10 @@ public:
         QWidget::setTabOrder(leTimeMinutes, cbTimeZone);
         QWidget::setTabOrder(cbTimeZone, bWrite);
         QWidget::setTabOrder(bWrite, bExit);
-        QWidget::setTabOrder(bExit, bCancel);
-        QWidget::setTabOrder(bCancel, bRead);
+        QWidget::setTabOrder(bExit, bRead);
         QWidget::setTabOrder(bRead, md5CheckBox);
+        QWidget::setTabOrder(md5CheckBox, cbEnterprise);
+        QWidget::setTabOrder(cbEnterprise, leFile);
 
         retranslateUi(MainWindow);
         QObject::connect(bExit, SIGNAL(clicked()), MainWindow, SLOT(close()));
@@ -484,8 +492,9 @@ public:
         cbHidden->setText(QApplication::translate("MainWindow", "Hidden", 0, QApplication::UnicodeUTF8));
         lbPassword->setText(QApplication::translate("MainWindow", "Password", 0, QApplication::UnicodeUTF8));
         gbTarget->setTitle(QApplication::translate("MainWindow", "Playback address", 0, QApplication::UnicodeUTF8));
+        cbEnterprise->setText(QApplication::translate("MainWindow", "Use player management (Enterprise subscriptions only)", 0, QApplication::UnicodeUTF8));
         lbTarget->setText(QApplication::translate("MainWindow", "http://playr.biz/", 0, QApplication::UnicodeUTF8));
-        label_4->setText(QApplication::translate("MainWindow", "/", 0, QApplication::UnicodeUTF8));
+        lbMiddleOfURL->setText(QApplication::translate("MainWindow", "/", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_STATUSTIP
         bCancel->setStatusTip(QApplication::translate("MainWindow", "Cancel current process.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_STATUSTIP
