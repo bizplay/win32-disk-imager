@@ -141,7 +141,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         QString myHomeDir;
         QVector<TimeZone> allTimeZones;
         QString myTimeZone;
-		QString appendKeepKey;
+		QString keepAppendKey;
 		QString baseURL;
 		QString channelPlaybackUrlPart;
 		QString playerRedirectUrlPart;

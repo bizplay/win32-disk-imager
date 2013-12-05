@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     sectorData = NULL;
     sectorsize = 0ul;
 
-    appendKeepKey = QString("append_keep");
+    keepAppendKey = QString("keep_append");
     baseURL = QString("http://playr.biz/");
     channelPlaybackUrlPart = QString("/");
     playerRedirectUrlPart = QString("/pr/");
@@ -960,8 +960,8 @@ void MainWindow::setBaseParameter(QStringList &parameters, QString key, QString 
 }
 void MainWindow::setKeepParameter(QStringList &parameters, QString key, QString value)
 {
-    QRegExp toMatch = QRegExp(appendKeepKey + QString("=") + key + QString("=\\S*"));
-    QString keyEquals = QString(appendKeepKey + QString("=") + key + QString("="));
+    QRegExp toMatch = QRegExp(keepAppendKey + QString("=") + key + QString("=\\S*"));
+    QString keyEquals = QString(keepAppendKey + QString("=") + key + QString("="));
     if (parameters.indexOf(toMatch) > -1)
     {
         parameters.replaceInStrings(toMatch, keyEquals + value);
@@ -985,9 +985,9 @@ void MainWindow::removeBaseParameter(QStringList &parameters, QString keyAndValu
 }
 void MainWindow::removeKeepParameter(QStringList &parameters, QString keyAndValue)
 {
-    if (parameters.indexOf(QRegExp(appendKeepKey + QString("=") + keyAndValue)) > -1)
+    if (parameters.indexOf(QRegExp(keepAppendKey + QString("=") + keyAndValue)) > -1)
     {
-        parameters.replaceInStrings(QRegExp(appendKeepKey + QString("=") + keyAndValue), QString(""));
+        parameters.replaceInStrings(QRegExp(keepAppendKey + QString("=") + keyAndValue), QString(""));
     }
 }
 int MainWindow::toInt(QString string)
