@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Nov 29 21:16:02 2013
+** Created: Fri Dec 6 22:54:28 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -270,7 +270,7 @@ public:
 
         leChannelID = new QLineEdit(gbTarget);
         leChannelID->setObjectName(QString::fromUtf8("leChannelID"));
-        leChannelID->setMaxLength(6);
+        leChannelID->setMaxLength(8);
 
         horizontalLayout_4->addWidget(leChannelID);
 

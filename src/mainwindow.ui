@@ -205,7 +205,7 @@
          <item>
           <widget class="QLineEdit" name="leChannelID">
            <property name="maxLength">
-            <number>6</number>
+            <number>8</number>
            </property>
           </widget>
          </item>

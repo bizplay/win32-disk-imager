@@ -260,13 +260,13 @@ bool MainWindow::timeSettingsCorrect()
 bool MainWindow::isCINCorrect()
 {
     QString CIN = leCIN->text(); 
-    return ((CIN.length() == 4) && QRegExp("\\d*").exactMatch(CIN));
+    return ((CIN.length() >= 1) && (CIN.length() <= 4)&& QRegExp("\\d*").exactMatch(CIN));
 }
 bool MainWindow::isRightUrlPartCorrect()
 {
     QString channelID = leChannelID->text();
     return (cbEnterprise->isChecked() && channelID.length() == 6 && QRegExp("[\\da-zA-Z]*").exactMatch(channelID)) 
-            || (!cbEnterprise->isChecked() && QRegExp("\\d*").exactMatch(channelID));
+            || (!cbEnterprise->isChecked() && (channelID.length() >= 1) && QRegExp("\\d*").exactMatch(channelID));
 }
 bool MainWindow::isURLCorrect()
 {
