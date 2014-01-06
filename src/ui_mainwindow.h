@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Dec 6 22:54:28 2013
+** Created: Mon Jan 6 12:47:49 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -95,13 +95,18 @@ public:
     QHBoxLayout *horizontalLayout_8;
     QLabel *lbResolution;
     QComboBox *cbResolution;
+    QHBoxLayout *horizontalLayout_9;
+    QLabel *lbWidth;
+    QLineEdit *leWidth;
+    QLabel *lbHeight;
+    QLineEdit *leHeight;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(355, 534);
+        MainWindow->resize(355, 564);
         MainWindow->setAcceptDrops(true);
         QIcon icon;
         icon.addFile(QString::fromUtf8(":/images/images/Win32DiskImager.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -204,6 +209,7 @@ public:
 
         leSSID = new QLineEdit(gbWireless);
         leSSID->setObjectName(QString::fromUtf8("leSSID"));
+        leSSID->setMaxLength(256);
 
         horizontalLayout_2->addWidget(leSSID);
 
@@ -224,6 +230,7 @@ public:
 
         lePassword = new QLineEdit(gbWireless);
         lePassword->setObjectName(QString::fromUtf8("lePassword"));
+        lePassword->setMaxLength(256);
 
         horizontalLayout_3->addWidget(lePassword);
 
@@ -446,6 +453,33 @@ public:
 
         verticalLayout_5->addLayout(horizontalLayout_8);
 
+        horizontalLayout_9 = new QHBoxLayout();
+        horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
+        lbWidth = new QLabel(groupBox_4);
+        lbWidth->setObjectName(QString::fromUtf8("lbWidth"));
+
+        horizontalLayout_9->addWidget(lbWidth);
+
+        leWidth = new QLineEdit(groupBox_4);
+        leWidth->setObjectName(QString::fromUtf8("leWidth"));
+        leWidth->setMaxLength(4);
+
+        horizontalLayout_9->addWidget(leWidth);
+
+        lbHeight = new QLabel(groupBox_4);
+        lbHeight->setObjectName(QString::fromUtf8("lbHeight"));
+
+        horizontalLayout_9->addWidget(lbHeight);
+
+        leHeight = new QLineEdit(groupBox_4);
+        leHeight->setObjectName(QString::fromUtf8("leHeight"));
+        leHeight->setMaxLength(4);
+
+        horizontalLayout_9->addWidget(leHeight);
+
+
+        verticalLayout_5->addLayout(horizontalLayout_9);
+
 
         gridLayout->addWidget(groupBox_4, 3, 0, 1, 1);
 
@@ -454,11 +488,13 @@ public:
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         MainWindow->setStatusBar(statusbar);
         QWidget::setTabOrder(tbBrowse, cboxDevice);
-        QWidget::setTabOrder(cboxDevice, leCIN);
+        QWidget::setTabOrder(cboxDevice, cbEnterprise);
+        QWidget::setTabOrder(cbEnterprise, leCIN);
         QWidget::setTabOrder(leCIN, leChannelID);
-        QWidget::setTabOrder(leChannelID, bCancel);
-        QWidget::setTabOrder(bCancel, cbResolution);
-        QWidget::setTabOrder(cbResolution, leSSID);
+        QWidget::setTabOrder(leChannelID, cbResolution);
+        QWidget::setTabOrder(cbResolution, leWidth);
+        QWidget::setTabOrder(leWidth, leHeight);
+        QWidget::setTabOrder(leHeight, leSSID);
         QWidget::setTabOrder(leSSID, cbHidden);
         QWidget::setTabOrder(cbHidden, lePassword);
         QWidget::setTabOrder(lePassword, cbWPA_WEP);
@@ -467,10 +503,10 @@ public:
         QWidget::setTabOrder(leTimeMinutes, cbTimeZone);
         QWidget::setTabOrder(cbTimeZone, bWrite);
         QWidget::setTabOrder(bWrite, bExit);
-        QWidget::setTabOrder(bExit, bRead);
+        QWidget::setTabOrder(bExit, bCancel);
+        QWidget::setTabOrder(bCancel, bRead);
         QWidget::setTabOrder(bRead, md5CheckBox);
-        QWidget::setTabOrder(md5CheckBox, cbEnterprise);
-        QWidget::setTabOrder(cbEnterprise, leFile);
+        QWidget::setTabOrder(md5CheckBox, leFile);
 
         retranslateUi(MainWindow);
         QObject::connect(bExit, SIGNAL(clicked()), MainWindow, SLOT(close()));
@@ -524,6 +560,8 @@ public:
         md5header->setText(QApplication::translate("MainWindow", "MD5 Hash: ", 0, QApplication::UnicodeUTF8));
         groupBox_4->setTitle(QApplication::translate("MainWindow", "Resolution", 0, QApplication::UnicodeUTF8));
         lbResolution->setText(QApplication::translate("MainWindow", "Screen resolution", 0, QApplication::UnicodeUTF8));
+        lbWidth->setText(QApplication::translate("MainWindow", "Width", 0, QApplication::UnicodeUTF8));
+        lbHeight->setText(QApplication::translate("MainWindow", "Height", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

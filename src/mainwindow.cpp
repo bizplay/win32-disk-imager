@@ -95,9 +95,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     cbWPA_WEP->addItem(QString("WEP"), QVariant(1));
 
     // init resolution drop box
-    cbResolution->addItem(QString("Default"), QVariant(0));
+    cbResolution->addItem(QString("Set no specific resolution"), QVariant(0));
     cbResolution->addItem(QString("1080p (1920x1080)"), QVariant(1));
     cbResolution->addItem(QString("720p (1280x720)"), QVariant(2));
+    cbResolution->addItem(QString("2 monitors (3840x1080)"), QVariant(3));
+    cbResolution->addItem(QString("Custom"), QVariant(4));
 
     // make md5 fields invisible, they might confuse our users
     md5CheckBox->setVisible(false);
@@ -272,6 +274,13 @@ bool MainWindow::isURLCorrect()
 {
     return isCINCorrect() && isRightUrlPartCorrect();
 }
+bool MainWindow::isResolutionCorrect()
+{
+    QString width = leWidth->text(); 
+    bool widthCorrect = ((width.length() <= 4) && QRegExp("\\d*").exactMatch(width));
+    QString height = leHeight->text(); 
+    return widthCorrect && ((height.length() <= 4) && QRegExp("\\d*").exactMatch(height));
+}
 bool MainWindow::urlShouldBeWritten()
 {
     return ( !leCIN->text().isEmpty() 
@@ -337,6 +346,17 @@ void MainWindow::on_cbWPA_WEP_currentIndexChanged()
 void MainWindow::on_cbResolution_currentIndexChanged()
 {
     setReadWriteButtonState();
+    if (resolutionValue() == 4) { // custom resulotion -> show entrie fields
+            lbWidth->setVisible(true);
+            leWidth->setVisible(true);
+            lbHeight->setVisible(true);
+            leHeight->setVisible(true);
+    } else {
+            lbWidth->setVisible(false);
+            leWidth->setVisible(false);
+            lbHeight->setVisible(false);
+            leHeight->setVisible(false);
+    }
 }
 void MainWindow::on_leTimeHours_textChanged()
 {
@@ -351,6 +371,14 @@ void MainWindow::on_leCIN_textChanged()
     setReadWriteButtonState();
 }
 void MainWindow::on_leChannelID_textChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::on_leWidth_textChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::on_leHeight_textChanged()
 {
     setReadWriteButtonState();
 }
@@ -580,6 +608,11 @@ void MainWindow::on_bWrite_clicked()
         {
             QMessageBox::critical(NULL, tr("URL Error"), tr("The URL is incorrect; the first part should consists of 4 numbers, the second part should consist of numbers."));
         }
+        return;
+    }
+    if (!isResolutionCorrect())
+    {
+        QMessageBox::critical(NULL, tr("Resolution Error"), tr("The resolution you sepcified is incorrect; it should consist of numbers only."));
         return;
     }
 
@@ -867,6 +900,8 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     bool insertCron = needsInsertion(hours, minutes);
     bool insertResolution = resolutionShouldBeWritten();
     int resolution = resolutionValue();
+    QString width = leWidth->text();
+    QString height = leHeight->text();
     bool inInstallSection = false;
 
     // open the config file and a temporary new config file
@@ -896,7 +931,7 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
                                                insertPassword, password, 
                                                replaceURL, newURL,
                                                insertCron, hours, minutes, myTimeZone,
-                                               insertResolution, resolution,
+                                               insertResolution, resolution, width, height,
                                                inInstallSection);
             inInstallSection = false;
         }
@@ -927,7 +962,7 @@ QString MainWindow::setParameters(QString line,
                                   bool insertPassword, QString password, 
                                   bool replaceURL, QString newURL,
                                   bool insertCron, int hours, int minutes, QString timeZone,
-                                  bool insertResolution, int resolution,
+                                  bool insertResolution, int resolution, QString width, QString height,
                                   bool keepParameter)
 {
     QStringList items = trimList(line.split(" "));
@@ -936,7 +971,7 @@ QString MainWindow::setParameters(QString line,
     setPasswordParameter(parameters, insertPassword, password, keepParameter);
     setURLParameter(parameters, replaceURL, newURL, keepParameter);
     setCronParameter(parameters, insertCron, hours, minutes, timeZone, keepParameter);
-    setResolutionParameter(parameters, insertResolution, resolution, keepParameter);
+    setResolutionParameter(parameters, insertResolution, resolution, width, height, keepParameter);
     QStringList nonEmptyParameters = parameters.filter(QRegExp("\\S+"));
     return nonEmptyParameters.join(QString(" "));
 }
@@ -1110,11 +1145,11 @@ QString MainWindow::cronString(int hours, int minutes)
                       );
     return result;
 }
-void MainWindow::setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution, bool keepParameter)
+void MainWindow::setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution, QString width, QString height, bool keepParameter)
 {
     if (insertResolution)
     {
-        setParameter(parameters, QString("xrandr"), resolutionString(resolution), keepParameter);
+        setParameter(parameters, QString("xrandr"), resolutionString(resolution, width, height), keepParameter);
     }
     else
     {
@@ -1122,13 +1157,28 @@ void MainWindow::setResolutionParameter(QStringList &parameters, bool insertReso
         removeParameter(parameters, QString("xrandr=\\S*"));
     }
 }
-QString MainWindow::resolutionString(int resolution)
+QString MainWindow::resolutionString(int resolution, QString width, QString height)
 {
     QString result = QString("");
-    if (resolution == 1 || resolution == 2)
-    {
-        result = QString("-s%20") + (resolution == 1 ? QString("1920x1080") : QString("1280x720"));
-
+    if (resolution > 0) {
+        result = QString("-s%20");
+        switch (resolution) {
+            case 1:
+                result += QString("1920x1080");
+                break;
+            case 2:
+                result += QString("1280x720");
+                break;
+            case 3:
+                result += QString("3840x1080");
+                break;
+            case 4:
+                result += width + QString("x") + height;
+                break;
+            default:
+                result += QString("1920x1080");
+                break;
+        }
     }
     return result;
 }

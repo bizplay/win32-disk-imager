@@ -53,6 +53,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void on_cbResolution_currentIndexChanged();
 		void on_leCIN_textChanged();
 		void on_leChannelID_textChanged();
+		void on_leWidth_textChanged();
+		void on_leHeight_textChanged();
 		void on_tbBrowse_clicked();
 		void on_bCancel_clicked();
 		void on_bWrite_clicked();
@@ -77,6 +79,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		bool isCINCorrect();
 		bool isRightUrlPartCorrect();
 		bool isURLCorrect();
+		bool isResolutionCorrect();
 		bool urlShouldBeWritten();
 		bool isWPASelected();
 		bool resolutionShouldBeWritten();
@@ -118,7 +121,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
                                   bool insertPassword, QString password, 
                                   bool replaceURL, QString newURL,
                                   bool insertCron, int hours, int minutes, QString timeZone,
-                                  bool insertResolution, int resolution,
+                                  bool insertResolution, int resolution, QString width, QString height,
                                   bool keepParameters);
 		void setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID, bool keepParameter);
 		void setPasswordParameter(QStringList &parameters, bool insertPassword, QString password, bool keepParameter);
@@ -126,8 +129,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		int toInt(QString minuteString);
 		void setCronParameter(QStringList &parameters, bool insertCron, int hours, int minutes, QString timeZone, bool keepParameter);
 		QString cronString(int hours, int minutes);
-		void setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution, bool keepParameter);
-		QString resolutionString(int resolution);
+		void setResolutionParameter(QStringList &parameters, bool insertResolution, int resolution, QString width, QString height, bool keepParameter);
+		QString resolutionString(int resolution, QString width, QString height);
 
 		HANDLE hVolume;
 		HANDLE hFile;
