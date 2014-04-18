@@ -117,13 +117,13 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void removeBaseParameter(QStringList &parameters, QString keyAndValue);
 		void removeKeepParameter(QStringList &parameters, QString keyAndValue);
 		QString setParameters(QString line, 
-                                  bool insertSSID, QString SSID, 
+                                  bool insertSSID, QString SSID, bool hiddenSSID,
                                   bool insertPassword, QString password, 
                                   bool replaceURL, QString newURL,
                                   bool insertCron, int hours, int minutes, QString timeZone,
                                   bool insertResolution, int resolution, QString width, QString height,
                                   bool keepParameters);
-		void setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID, bool keepParameter);
+		void setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID, bool hiddenSSID, bool keepParameter);
 		void setPasswordParameter(QStringList &parameters, bool insertPassword, QString password, bool keepParameter);
 		void setURLParameter(QStringList &parameters, bool replaceURL, QString newURL, bool keepParameter);
 		int toInt(QString minuteString);

@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     }
 
     setReadWriteButtonState();
-    QString myver = tr("Version: %1").arg(VER);
+    QString myver = tr("Version: %1").arg(VER) + ":01";
     VerLabel->setText(myver);
     sectorData = NULL;
     sectorsize = 0ul;
@@ -885,13 +885,10 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
 
     // construct parameter strings to find and replace
     QString SSID = replaceSpace(leSSID->text());
-    bool insertSSID = needsInsertion(leSSID->text());
+    bool insertSSID = true; //needsInsertion(leSSID->text());
+    bool hiddenSSID = cbHidden->checkState() != Qt::Unchecked;
     QString password = replaceSpace(lePassword->text());
-    bool insertPassword = needsInsertion(lePassword->text());
-    if (!insertPassword && (cbWPA_WEP->currentIndex() != 0 || cbHidden->checkState() != Qt::Unchecked || insertSSID))
-    {
-        insertPassword = true;
-    }
+    bool insertPassword = wirelessConfigurationShouldBeWritten();
     QString newURL;
     bool replaceURL = needsInsertion(leCIN->text(), leChannelID->text());
     if (replaceURL) newURL = createURL();
@@ -927,7 +924,7 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
         {
             // save indentation sincesetParameters returns the bare combined parameter string
             QString indentation = line.left(line.indexOf(configLineToEditIndicator));
-            line = indentation + setParameters(line, insertSSID, SSID, 
+            line = indentation + setParameters(line, insertSSID, SSID, hiddenSSID,   
                                                insertPassword, password, 
                                                replaceURL, newURL,
                                                insertCron, hours, minutes, myTimeZone,
@@ -958,7 +955,7 @@ QString MainWindow::createURL()
     return result;
 }
 QString MainWindow::setParameters(QString line, 
-                                  bool insertSSID, QString SSID, 
+                                  bool insertSSID, QString SSID, bool hiddenSSID, 
                                   bool insertPassword, QString password, 
                                   bool replaceURL, QString newURL,
                                   bool insertCron, int hours, int minutes, QString timeZone,
@@ -967,7 +964,7 @@ QString MainWindow::setParameters(QString line,
 {
     QStringList items = trimList(line.split(" "));
     QStringList parameters = items.filter(QRegExp("\\S+"));
-    setSSIDParameter(parameters, insertSSID, SSID, keepParameter);
+    setSSIDParameter(parameters, insertSSID, SSID, hiddenSSID, keepParameter);
     setPasswordParameter(parameters, insertPassword, password, keepParameter);
     setURLParameter(parameters, replaceURL, newURL, keepParameter);
     setCronParameter(parameters, insertCron, hours, minutes, timeZone, keepParameter);
@@ -1042,74 +1039,54 @@ QStringList MainWindow::trimList(QStringList list)
     }
     return result;
 }
-void MainWindow::setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID, bool keepParameter)
+void MainWindow::setSSIDParameter(QStringList &parameters, bool insertSSID, QString SSID, bool hiddenSSID, bool keepParameter)
 {
+    // remove all settings that are currenlty present
+    removeParameter(parameters, QString("wpa-ap-scan=1"));
+    removeParameter(parameters, QString("wpa-scan-ssid=1"));
+    removeParameter(parameters, QString("wpa-ssid=\\S*"));
     if (insertSSID)
     {
-        setParameter(parameters, QString("wpa-ssid"), SSID, keepParameter);
-    }
-    else 
-    {
-        removeParameter(parameters, QString("wpa-ssid=\\S*"));
+        if (!SSID.isEmpty())
+        {
+            setParameter(parameters, QString("wpa-ssid"), SSID, keepParameter);
+        }
+        if (hiddenSSID) 
+        {
+            setParameter(parameters, QString("wpa-ap-scan"), QString("1"), keepParameter);
+            setParameter(parameters, QString("wpa-scan-ssid"), QString("1"), keepParameter);
+        }
     }
 }
 void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPassword, QString password, bool keepParameter)
 {    
+    // remove all settings that are currenlty present
+    removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
+    removeParameter(parameters, QString("wpa-psk=\\S*"));
+    removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
     if (insertPassword)
     {
-        if (cbHidden->checkState() == Qt::Unchecked) 
-        {
-            // if present remove hidden settings
-            removeParameter(parameters, QString("wpa-ap-scan=1"));
-            removeParameter(parameters, QString("wpa-scan-ssid=1"));
-        }
-        else
-        {
-            // replace with correct setting
-            setParameter(parameters, QString("wpa-ap-scan"), QString("1"), keepParameter);
-            setParameter(parameters, QString("wpa-scan-ssid"), QString("1"), keepParameter);
-        }
         if (!password.isEmpty())
         {
             if (isWPASelected()) 
             {
-                // remove WEP key
-                removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
-                removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
-                // add WPA key
                 setParameter(parameters, QString("wpa-psk"), password, keepParameter);
             }
             else
             {
-                // remove WPA key
-                removeParameter(parameters, QString("wpa-psk=\\S*"));
-                removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
-                // add WPA key
-                // setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"));
+                setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"), keepParameter);
                 setParameter(parameters, QString("wpa-wep-key0"), password, keepParameter);
             }
         }
         else
         {
-            // remove password key
-            removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
-            removeParameter(parameters, QString("wpa-psk=\\S*"));
-            // add setting indocating there is no security
             setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"), keepParameter);
         }
-    }
-    else
-    {
-        removeParameter(parameters, QString("wpa-ap-scan=1"));
-        removeParameter(parameters, QString("wpa-scan-ssid=1"));
-        removeParameter(parameters, QString("wpa-wep-key0=\\S*"));
-        removeParameter(parameters, QString("wpa-psk=\\S*"));
-        removeParameter(parameters, QString("wpa-key-mgmt=NONE"));
     }
 }
 void MainWindow::setURLParameter(QStringList &parameters, bool replaceURL, QString newURL, bool keepParameter)
 {
-    QString currentURL = QString("http://playr.biz/2400/74");
+    QString currentURL = QString("http://playr.biz/play");
 
     if (replaceURL)
     {
