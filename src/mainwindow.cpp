@@ -69,6 +69,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     baseURL = QString("http://playr.biz/");
     channelPlaybackUrlPart = QString("/");
     playerRedirectUrlPart = QString("/pr/");
+    playerRegistrationAndRedirectUrl = QString("http://play.playr.biz");
+    emptyString = QString("");
 
     myHomeDir = QDir::homePath();
     if (myHomeDir == NULL){
@@ -105,6 +107,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     md5CheckBox->setVisible(false);
     md5header->setVisible(false);
     md5label->setVisible(false);
+    cbEnterprise->setChecked(1);
 }
 
 MainWindow::~MainWindow()
@@ -261,14 +264,21 @@ bool MainWindow::timeSettingsCorrect()
  }
 bool MainWindow::isCINCorrect()
 {
-    QString CIN = leCIN->text(); 
-    return ((CIN.length() >= 1) && (CIN.length() <= 4)&& QRegExp("\\d*").exactMatch(CIN));
+    if (!cbEnterprise->isChecked()) {
+        QString CIN = leCIN->text(); 
+        return ((CIN.length() >= 1) && (CIN.length() <= 4)&& QRegExp("\\d*").exactMatch(CIN));
+    } else {
+        return true;
+    }
 }
 bool MainWindow::isRightUrlPartCorrect()
 {
-    QString channelID = leChannelID->text();
-    return (cbEnterprise->isChecked() && channelID.length() == 6 && QRegExp("[\\da-zA-Z]*").exactMatch(channelID)) 
-            || (!cbEnterprise->isChecked() && (channelID.length() >= 1) && QRegExp("\\d*").exactMatch(channelID));
+    if (!cbEnterprise->isChecked()) {
+        QString channelID = leChannelID->text();
+        return (channelID.length() >= 1) && QRegExp("\\d*").exactMatch(channelID);
+    } else {
+        return true;  
+    }
 }
 bool MainWindow::isURLCorrect()
 {
@@ -512,11 +522,21 @@ void MainWindow::on_cbEnterprise_stateChanged()
 {
     if(cbEnterprise->isChecked())
     {
-        lbMiddleOfURL->setText(playerRedirectUrlPart);
+        //lbMiddleOfURL->setText(playerRedirectUrlPart);
+        //lbURL->setText(playerRegistrationAndRedirectUrl);
+        lbTarget->setText(playerRegistrationAndRedirectUrl);
+        lbMiddleOfURL->setVisible(false);
+        leCIN->setVisible(false);
+        leChannelID->setVisible(false);
     }
     else
     {
-        lbMiddleOfURL->setText(channelPlaybackUrlPart);
+        //lbMiddleOfURL->setText(channelPlaybackUrlPart);
+        //lbURL->setText(emptyString);
+        lbTarget->setText(baseURL);
+        lbMiddleOfURL->setVisible(true);
+        leCIN->setVisible(true);
+        leChannelID->setVisible(true);
     }
     setReadWriteButtonState();
 }
@@ -600,11 +620,7 @@ void MainWindow::on_bWrite_clicked()
 
     if (!isURLCorrect())
     {
-        if (cbEnterprise->isChecked())
-        {
-            QMessageBox::critical(NULL, tr("URL Error"), tr("The URL is incorrect; the first part should consists of 4 numbers, the second part should consist of 6 letters and numbers."));
-        }
-        else
+        if (!cbEnterprise->isChecked())
         {
             QMessageBox::critical(NULL, tr("URL Error"), tr("The URL is incorrect; the first part should consists of 4 numbers, the second part should consist of numbers."));
         }
@@ -806,9 +822,9 @@ bool MainWindow::needsInsertion(QString leValue)
 {
     return !leValue.isEmpty();
 }
-bool MainWindow::needsInsertion(QString leValue1, QString leValue2)
+bool MainWindow::needsInsertion(QString leValue1, QString leValue2, bool isEnterprise)
 {
-    return !leValue1.isEmpty() && !leValue2.isEmpty();
+    return (!leValue1.isEmpty() && !leValue2.isEmpty()) || isEnterprise;
 }
 bool MainWindow::needsInsertion(int hours, int minutes)
 {
@@ -890,7 +906,7 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     QString password = replaceSpace(lePassword->text());
     bool insertPassword = wirelessConfigurationShouldBeWritten();
     QString newURL;
-    bool replaceURL = needsInsertion(leCIN->text(), leChannelID->text());
+    bool replaceURL = needsInsertion(leCIN->text(), leChannelID->text(), cbEnterprise->isChecked());
     if (replaceURL) newURL = createURL();
     int hours = toInt(leTimeHours->text());
     int minutes = toInt(leTimeMinutes->text());
@@ -946,7 +962,8 @@ QString MainWindow::createURL()
     QString result = QString("");
     if (cbEnterprise->isChecked())
     {
-        result = baseURL + leCIN->text() + playerRedirectUrlPart + leChannelID->text();
+        // result = baseURL + leCIN->text() + playerRedirectUrlPart + leChannelID->text();
+        result = playerRegistrationAndRedirectUrl;
     }
     else
     {

@@ -103,7 +103,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		QString urlEncode(QString leValue);
 		QString replaceSpace(QString leValue);
 		bool needsInsertion(QString leValue);
-		bool needsInsertion(QString leValue1, QString leValue2);
+		bool needsInsertion(QString leValue1, QString leValue2, bool isEnterprise);
 		bool needsInsertion(int hours, int minutes);
 		bool needsURLInsertion(QString leValue);
 		bool writeOSConfiguration(char *ltr);
@@ -148,6 +148,8 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		QString baseURL;
 		QString channelPlaybackUrlPart;
 		QString playerRedirectUrlPart;
+		QString playerRegistrationAndRedirectUrl;
+		QString emptyString;
 };
 
 #endif // MAINWINDOW_H

@@ -183,7 +183,7 @@
        <item>
         <widget class="QCheckBox" name="cbEnterprise">
          <property name="text">
-          <string>Use player management (Enterprise subscriptions only)</string>
+          <string>Use player management</string>
          </property>
         </widget>
        </item>

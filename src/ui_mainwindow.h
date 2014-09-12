@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Mon Jan 6 12:47:49 2014
+** Created: Fri Sep 12 22:54:29 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -528,7 +528,7 @@ public:
         cbHidden->setText(QApplication::translate("MainWindow", "Hidden", 0, QApplication::UnicodeUTF8));
         lbPassword->setText(QApplication::translate("MainWindow", "Password", 0, QApplication::UnicodeUTF8));
         gbTarget->setTitle(QApplication::translate("MainWindow", "Playback address", 0, QApplication::UnicodeUTF8));
-        cbEnterprise->setText(QApplication::translate("MainWindow", "Use player management (Enterprise subscriptions only)", 0, QApplication::UnicodeUTF8));
+        cbEnterprise->setText(QApplication::translate("MainWindow", "Use player management", 0, QApplication::UnicodeUTF8));
         lbTarget->setText(QApplication::translate("MainWindow", "http://playr.biz/", 0, QApplication::UnicodeUTF8));
         lbMiddleOfURL->setText(QApplication::translate("MainWindow", "/", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_STATUSTIP
