@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Sep 12 22:54:29 2014
+** Created: Wed Nov 26 11:43:12 2014
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -64,12 +64,8 @@ public:
     QComboBox *cbWPA_WEP;
     QGroupBox *gbTarget;
     QVBoxLayout *verticalLayout_4;
-    QCheckBox *cbEnterprise;
     QHBoxLayout *horizontalLayout_4;
     QLabel *lbTarget;
-    QLineEdit *leCIN;
-    QLabel *lbMiddleOfURL;
-    QLineEdit *leChannelID;
     QHBoxLayout *hboxLayout1;
     QLabel *VerLabel;
     QPushButton *bCancel;
@@ -252,34 +248,12 @@ public:
         gbTarget->setObjectName(QString::fromUtf8("gbTarget"));
         verticalLayout_4 = new QVBoxLayout(gbTarget);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-        cbEnterprise = new QCheckBox(gbTarget);
-        cbEnterprise->setObjectName(QString::fromUtf8("cbEnterprise"));
-
-        verticalLayout_4->addWidget(cbEnterprise);
-
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
         lbTarget = new QLabel(gbTarget);
         lbTarget->setObjectName(QString::fromUtf8("lbTarget"));
 
         horizontalLayout_4->addWidget(lbTarget);
-
-        leCIN = new QLineEdit(gbTarget);
-        leCIN->setObjectName(QString::fromUtf8("leCIN"));
-        leCIN->setMaxLength(4);
-
-        horizontalLayout_4->addWidget(leCIN);
-
-        lbMiddleOfURL = new QLabel(gbTarget);
-        lbMiddleOfURL->setObjectName(QString::fromUtf8("lbMiddleOfURL"));
-
-        horizontalLayout_4->addWidget(lbMiddleOfURL);
-
-        leChannelID = new QLineEdit(gbTarget);
-        leChannelID->setObjectName(QString::fromUtf8("leChannelID"));
-        leChannelID->setMaxLength(8);
-
-        horizontalLayout_4->addWidget(leChannelID);
 
 
         verticalLayout_4->addLayout(horizontalLayout_4);
@@ -488,10 +462,7 @@ public:
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         MainWindow->setStatusBar(statusbar);
         QWidget::setTabOrder(tbBrowse, cboxDevice);
-        QWidget::setTabOrder(cboxDevice, cbEnterprise);
-        QWidget::setTabOrder(cbEnterprise, leCIN);
-        QWidget::setTabOrder(leCIN, leChannelID);
-        QWidget::setTabOrder(leChannelID, cbResolution);
+        QWidget::setTabOrder(cboxDevice, cbResolution);
         QWidget::setTabOrder(cbResolution, leWidth);
         QWidget::setTabOrder(leWidth, leHeight);
         QWidget::setTabOrder(leHeight, leSSID);
@@ -528,9 +499,7 @@ public:
         cbHidden->setText(QApplication::translate("MainWindow", "Hidden", 0, QApplication::UnicodeUTF8));
         lbPassword->setText(QApplication::translate("MainWindow", "Password", 0, QApplication::UnicodeUTF8));
         gbTarget->setTitle(QApplication::translate("MainWindow", "Playback address", 0, QApplication::UnicodeUTF8));
-        cbEnterprise->setText(QApplication::translate("MainWindow", "Use player management", 0, QApplication::UnicodeUTF8));
-        lbTarget->setText(QApplication::translate("MainWindow", "http://playr.biz/", 0, QApplication::UnicodeUTF8));
-        lbMiddleOfURL->setText(QApplication::translate("MainWindow", "/", 0, QApplication::UnicodeUTF8));
+        lbTarget->setText(QApplication::translate("MainWindow", "http://play.playr.biz/", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_STATUSTIP
         bCancel->setStatusTip(QApplication::translate("MainWindow", "Cancel current process.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_STATUSTIP
