@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     }
 
     setReadWriteButtonState();
-    QString myver = tr("Version: %1").arg(VER) + ":01";
+    QString myver = tr("Version: %1").arg(VER) + ".02";
     VerLabel->setText(myver);
     sectorData = NULL;
     sectorsize = 0ul;
@@ -72,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     playerRegistrationAndRedirectUrl = QString("http://play.playr.biz");
     emptyString = QString("");
 
+    lbTarget->setText(playerRegistrationAndRedirectUrl);
     myHomeDir = QDir::homePath();
     if (myHomeDir == NULL){
         myHomeDir = qgetenv("USERPROFILE");
@@ -100,14 +101,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     cbResolution->addItem(QString("Set no specific resolution"), QVariant(0));
     cbResolution->addItem(QString("1080p (1920x1080)"), QVariant(1));
     cbResolution->addItem(QString("720p (1280x720)"), QVariant(2));
-    cbResolution->addItem(QString("2 monitors (3840x1080)"), QVariant(3));
-    cbResolution->addItem(QString("Custom"), QVariant(4));
+    cbResolution->addItem(QString("1080p Vertical/Portrait (1080x1920)"), QVariant(3));
+    cbResolution->addItem(QString("720p Vertical/Portrait (720x1280)"), QVariant(4));
+    cbResolution->addItem(QString("two 1080p screens (3840x1080)"), QVariant(5));
+    cbResolution->addItem(QString("two 720p screens (2560x720)"), QVariant(6));
+    cbResolution->addItem(QString("two 1080p screens Vertical/Portrait (2160x1920)"), QVariant(7));
+    cbResolution->addItem(QString("two 720p screens Vertical/Portrait (1440x1280)"), QVariant(8));
+    cbResolution->addItem(QString("Custom"), QVariant(9));
 
     // make md5 fields invisible, they might confuse our users
     md5CheckBox->setVisible(false);
     md5header->setVisible(false);
     md5label->setVisible(false);
-    cbEnterprise->setChecked(1);
 }
 
 MainWindow::~MainWindow()
@@ -262,28 +267,6 @@ bool MainWindow::timeSettingsCorrect()
         )
     );
  }
-bool MainWindow::isCINCorrect()
-{
-    if (!cbEnterprise->isChecked()) {
-        QString CIN = leCIN->text(); 
-        return ((CIN.length() >= 1) && (CIN.length() <= 4)&& QRegExp("\\d*").exactMatch(CIN));
-    } else {
-        return true;
-    }
-}
-bool MainWindow::isRightUrlPartCorrect()
-{
-    if (!cbEnterprise->isChecked()) {
-        QString channelID = leChannelID->text();
-        return (channelID.length() >= 1) && QRegExp("\\d*").exactMatch(channelID);
-    } else {
-        return true;  
-    }
-}
-bool MainWindow::isURLCorrect()
-{
-    return isCINCorrect() && isRightUrlPartCorrect();
-}
 bool MainWindow::isResolutionCorrect()
 {
     QString width = leWidth->text(); 
@@ -293,9 +276,7 @@ bool MainWindow::isResolutionCorrect()
 }
 bool MainWindow::urlShouldBeWritten()
 {
-    return ( !leCIN->text().isEmpty() 
-             || !leChannelID->text().isEmpty() 
-    );
+    return true;
 }
 bool MainWindow::isWPASelected()
 {
@@ -356,7 +337,7 @@ void MainWindow::on_cbWPA_WEP_currentIndexChanged()
 void MainWindow::on_cbResolution_currentIndexChanged()
 {
     setReadWriteButtonState();
-    if (resolutionValue() == 4) { // custom resulotion -> show entrie fields
+    if (resolutionValue() == 9) { // custom resulotion -> show entrie fields
             lbWidth->setVisible(true);
             leWidth->setVisible(true);
             lbHeight->setVisible(true);
@@ -373,14 +354,6 @@ void MainWindow::on_leTimeHours_textChanged()
     setReadWriteButtonState();
 }
 void MainWindow::on_leTimeMinutes_textChanged()
-{
-    setReadWriteButtonState();
-}
-void MainWindow::on_leCIN_textChanged()
-{
-    setReadWriteButtonState();
-}
-void MainWindow::on_leChannelID_textChanged()
 {
     setReadWriteButtonState();
 }
@@ -518,28 +491,6 @@ void MainWindow::on_md5CheckBox_stateChanged()
         md5label->clear();
     }
 }
-void MainWindow::on_cbEnterprise_stateChanged()
-{
-    if(cbEnterprise->isChecked())
-    {
-        //lbMiddleOfURL->setText(playerRedirectUrlPart);
-        //lbURL->setText(playerRegistrationAndRedirectUrl);
-        lbTarget->setText(playerRegistrationAndRedirectUrl);
-        lbMiddleOfURL->setVisible(false);
-        leCIN->setVisible(false);
-        leChannelID->setVisible(false);
-    }
-    else
-    {
-        //lbMiddleOfURL->setText(channelPlaybackUrlPart);
-        //lbURL->setText(emptyString);
-        lbTarget->setText(baseURL);
-        lbMiddleOfURL->setVisible(true);
-        leCIN->setVisible(true);
-        leChannelID->setVisible(true);
-    }
-    setReadWriteButtonState();
-}
 void MainWindow::on_cbHidden_stateChanged()
 {
     setReadWriteButtonState();
@@ -618,14 +569,6 @@ void MainWindow::on_bWrite_clicked()
 {
     bool passfail = true;
 
-    if (!isURLCorrect())
-    {
-        if (!cbEnterprise->isChecked())
-        {
-            QMessageBox::critical(NULL, tr("URL Error"), tr("The URL is incorrect; the first part should consists of 4 numbers, the second part should consist of numbers."));
-        }
-        return;
-    }
     if (!isResolutionCorrect())
     {
         QMessageBox::critical(NULL, tr("Resolution Error"), tr("The resolution you sepcified is incorrect; it should consist of numbers only."));
@@ -906,7 +849,7 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     QString password = replaceSpace(lePassword->text());
     bool insertPassword = wirelessConfigurationShouldBeWritten();
     QString newURL;
-    bool replaceURL = needsInsertion(leCIN->text(), leChannelID->text(), cbEnterprise->isChecked());
+    bool replaceURL = urlShouldBeWritten(); // since this does no longer changes always insert
     if (replaceURL) newURL = createURL();
     int hours = toInt(leTimeHours->text());
     int minutes = toInt(leTimeMinutes->text());
@@ -959,17 +902,7 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
 }
 QString MainWindow::createURL()
 {
-    QString result = QString("");
-    if (cbEnterprise->isChecked())
-    {
-        // result = baseURL + leCIN->text() + playerRedirectUrlPart + leChannelID->text();
-        result = playerRegistrationAndRedirectUrl;
-    }
-    else
-    {
-        result = baseURL + leCIN->text() + channelPlaybackUrlPart + leChannelID->text();
-    }
-    return result;
+    return playerRegistrationAndRedirectUrl;
 }
 QString MainWindow::setParameters(QString line, 
                                   bool insertSSID, QString SSID, bool hiddenSSID, 
@@ -1143,11 +1076,13 @@ void MainWindow::setResolutionParameter(QStringList &parameters, bool insertReso
 {
     if (insertResolution)
     {
+        removeParameter(parameters, QString("xrandr-all=\\S*"));
         setParameter(parameters, QString("xrandr"), resolutionString(resolution, width, height), keepParameter);
     }
     else
     {
         // remove Cron parameters
+        removeParameter(parameters, QString("xrandr-all=\\S*"));
         removeParameter(parameters, QString("xrandr=\\S*"));
     }
 }
@@ -1164,14 +1099,36 @@ QString MainWindow::resolutionString(int resolution, QString width, QString heig
                 result += QString("1280x720");
                 break;
             case 3:
-                result += QString("3840x1080");
+                result += QString("1920x1080");
                 break;
             case 4:
-                result += width + QString("x") + height;
+                result += QString("1280x720");
+                break;
+            case 5:
+                result += QString("3840x1080");
+                break;
+            case 6:
+                result += QString("2560x720");
+                break;
+            case 7:
+                result += QString("3840x1080");
+                break;
+            case 8:
+                result += QString("2560x720");
+                break;
+            case 9:
+                if (width > height) {
+                    result += width + QString("x") + height;
+                } else {
+                    result += height + QString("x") + width;
+                }
                 break;
             default:
                 result += QString("1920x1080");
                 break;
+        }
+        if (resolution == 3 || resolution == 4 || resolution == 7 || resolution == 8 || (resolution = 9 && width < height) ) {
+            result += " xrandr-all=--rotate%20right";
         }
     }
     return result;

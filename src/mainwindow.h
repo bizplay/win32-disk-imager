@@ -51,8 +51,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void on_cbTimeZone_currentIndexChanged();
 		void on_cbWPA_WEP_currentIndexChanged();
 		void on_cbResolution_currentIndexChanged();
-		void on_leCIN_textChanged();
-		void on_leChannelID_textChanged();
 		void on_leWidth_textChanged();
 		void on_leHeight_textChanged();
 		void on_tbBrowse_clicked();
@@ -62,7 +60,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
         void on_leFile_textChanged();
 		void on_leFile_editingFinished();
 		void on_md5CheckBox_stateChanged();
-		void on_cbEnterprise_stateChanged();
 		void on_cbHidden_stateChanged();
 		void on_leSSID_textChanged();
 		void on_lePassword_textChanged();
@@ -76,9 +73,6 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		bool deviceSelected();
 		bool timeSettingsShouldBeWritten();
 		bool timeSettingsCorrect();
-		bool isCINCorrect();
-		bool isRightUrlPartCorrect();
-		bool isURLCorrect();
 		bool isResolutionCorrect();
 		bool urlShouldBeWritten();
 		bool isWPASelected();
