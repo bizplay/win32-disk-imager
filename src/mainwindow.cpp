@@ -757,7 +757,7 @@ QString MainWindow::urlEncode(QString leValue)
 {
     return QUrl::toPercentEncoding(leValue);
 }
-QString MainWindow::replaceSpace(QString leValue)
+QString MainWindow::replaceSpaces(QString leValue)
 {
     return leValue.replace(" ", "%20");
 }
@@ -843,10 +843,10 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
     disableWriteAndReadButtons();
 
     // construct parameter strings to find and replace
-    QString SSID = replaceSpace(leSSID->text());
+    QString SSID = leSSID->text();
     bool insertSSID = true; //needsInsertion(leSSID->text());
     bool hiddenSSID = cbHidden->checkState() != Qt::Unchecked;
-    QString password = replaceSpace(lePassword->text());
+    QString password = lePassword->text();
     bool insertPassword = wirelessConfigurationShouldBeWritten();
     QString newURL;
     bool replaceURL = urlShouldBeWritten(); // since this does no longer changes always insert
@@ -999,7 +999,7 @@ void MainWindow::setSSIDParameter(QStringList &parameters, bool insertSSID, QStr
     {
         if (!SSID.isEmpty())
         {
-            setParameter(parameters, QString("wpa-ssid"), SSID, keepParameter);
+            setParameter(parameters, QString("wpa-ssid"), replaceSpaces(SSID), keepParameter);
         }
         if (hiddenSSID) 
         {
@@ -1020,12 +1020,12 @@ void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPasswo
         {
             if (isWPASelected()) 
             {
-                setParameter(parameters, QString("wpa-psk"), password, keepParameter);
+                setParameter(parameters, QString("wpa-psk"), replaceSpaces(password), keepParameter);
             }
             else
             {
                 setParameter(parameters, QString("wpa-key-mgmt"), QString("NONE"), keepParameter);
-                setParameter(parameters, QString("wpa-wep-key0"), password, keepParameter);
+                setParameter(parameters, QString("wpa-wep-key0"), replaceSpaces(password), keepParameter);
             }
         }
         else
@@ -1063,7 +1063,7 @@ void MainWindow::setCronParameter(QStringList &parameters, bool insertCron, int 
 }
 QString MainWindow::cronString(int hours, int minutes)
 {
-    QString result = replaceSpace( (minutes >= 0 && minutes < 10 ? QString("0") : QString("")) 
+    QString result = replaceSpaces( (minutes >= 0 && minutes < 10 ? QString("0") : QString("")) 
                                       + QString::number(((minutes < 0) || (minutes > 59)) ? 00 : minutes) 
                                       + QString(" ") 
                                       + (hours >= 0 && hours < 10 ? QString("0") : QString(""))

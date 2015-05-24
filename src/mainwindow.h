@@ -95,7 +95,7 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void deleteData();
 		void deleteDataIdleStatusRemoveLockAndCloseVolumeHandles();
 		QString urlEncode(QString leValue);
-		QString replaceSpace(QString leValue);
+		QString replaceSpaces(QString leValue);
 		bool needsInsertion(QString leValue);
 		bool needsInsertion(QString leValue1, QString leValue2, bool isEnterprise);
 		bool needsInsertion(int hours, int minutes);
