@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     }
 
     setReadWriteButtonState();
-    QString myver = tr("Version: %1").arg(VER) + ".02";
+    QString myver = tr("Version: %1").arg(VER) + ".03";
     VerLabel->setText(myver);
     sectorData = NULL;
     sectorsize = 0ul;
@@ -113,6 +113,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     md5CheckBox->setVisible(false);
     md5header->setVisible(false);
     md5label->setVisible(false);
+    cbEnterprise->setChecked(1);
 }
 
 MainWindow::~MainWindow()
@@ -267,6 +268,28 @@ bool MainWindow::timeSettingsCorrect()
         )
     );
  }
+bool MainWindow::isCINCorrect()
+{
+    if (!cbEnterprise->isChecked()) {
+        QString CIN = leCIN->text(); 
+        return ((CIN.length() >= 1) && (CIN.length() <= 4)&& QRegExp("\\d*").exactMatch(CIN));
+    } else {
+        return true;
+    }
+}
+bool MainWindow::isRightUrlPartCorrect()
+{
+    if (!cbEnterprise->isChecked()) {
+        QString channelID = leChannelID->text();
+        return (channelID.length() >= 1) && QRegExp("\\d*").exactMatch(channelID);
+    } else {
+        return true;  
+    }
+}
+bool MainWindow::isURLCorrect()
+{
+    return isCINCorrect() && isRightUrlPartCorrect();
+}
 bool MainWindow::isResolutionCorrect()
 {
     QString width = leWidth->text(); 
@@ -276,7 +299,10 @@ bool MainWindow::isResolutionCorrect()
 }
 bool MainWindow::urlShouldBeWritten()
 {
-    return true;
+    //return true;
+    return ( !leCIN->text().isEmpty() 
+             || !leChannelID->text().isEmpty() 
+    );
 }
 bool MainWindow::isWPASelected()
 {
@@ -354,6 +380,14 @@ void MainWindow::on_leTimeHours_textChanged()
     setReadWriteButtonState();
 }
 void MainWindow::on_leTimeMinutes_textChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::on_leCIN_textChanged()
+{
+    setReadWriteButtonState();
+}
+void MainWindow::on_leChannelID_textChanged()
 {
     setReadWriteButtonState();
 }
@@ -491,6 +525,24 @@ void MainWindow::on_md5CheckBox_stateChanged()
         md5label->clear();
     }
 }
+void MainWindow::on_cbEnterprise_stateChanged()
+{
+    if(cbEnterprise->isChecked())
+    {
+        lbTarget->setText(playerRegistrationAndRedirectUrl);
+        lbMiddleOfURL->setVisible(false);
+        leCIN->setVisible(false);
+        leChannelID->setVisible(false);
+    }
+    else
+    {
+        lbTarget->setText(baseURL);
+        lbMiddleOfURL->setVisible(true);
+        leCIN->setVisible(true);
+        leChannelID->setVisible(true);
+    }
+    setReadWriteButtonState();
+}
 void MainWindow::on_cbHidden_stateChanged()
 {
     setReadWriteButtonState();
@@ -569,6 +621,14 @@ void MainWindow::on_bWrite_clicked()
 {
     bool passfail = true;
 
+    if (!isURLCorrect())
+    {
+        if (!cbEnterprise->isChecked())
+        {
+            QMessageBox::critical(NULL, tr("URL Error"), tr("The URL is incorrect; the first part should consists of a maximum of 4 numbers, the second part should consist of numbers."));
+        }
+        return;
+    }
     if (!isResolutionCorrect())
     {
         QMessageBox::critical(NULL, tr("Resolution Error"), tr("The resolution you sepcified is incorrect; it should consist of numbers only."));
@@ -902,7 +962,16 @@ bool MainWindow::updateConfigurationFile(QString configFileName)
 }
 QString MainWindow::createURL()
 {
-    return playerRegistrationAndRedirectUrl;
+    QString result = QString("");
+    if (cbEnterprise->isChecked())
+    {
+        result = playerRegistrationAndRedirectUrl;
+    }
+    else
+    {
+        result = baseURL + leCIN->text() + channelPlaybackUrlPart + leChannelID->text();
+    }
+    return result;
 }
 QString MainWindow::setParameters(QString line, 
                                   bool insertSSID, QString SSID, bool hiddenSSID, 
@@ -1036,7 +1105,7 @@ void MainWindow::setPasswordParameter(QStringList &parameters, bool insertPasswo
 }
 void MainWindow::setURLParameter(QStringList &parameters, bool replaceURL, QString newURL, bool keepParameter)
 {
-    QString currentURL = QString("http://playr.biz/play");
+    QString currentURL = playerRegistrationAndRedirectUrl;
 
     if (replaceURL)
     {
